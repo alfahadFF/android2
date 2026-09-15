@@ -1,0 +1,27 @@
+{
+  "name": "اندرويد 2 - جوالات وشاشات",
+  "short_name": "اندرويد 2",
+  "description": "بيع وصيانة جوالات، كتالوج رقمي وحجز الأجهزة",
+  "start_url": "./android2.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#121216",
+  "theme_color": "#991122",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "https://res.cloudinary.com/dvzg70krq/image/upload/v1789378700/file_00000000110081fbad6ea464dc721a58_hzasvk.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://res.cloudinary.com/dvzg70krq/image/upload/v1789378700/file_00000000110081fbad6ea464dc721a58_hzasvk.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>اندرويد 2 | جوالات وشاشات</title>
+
+  <link rel="icon" type="image/png" href="https://res.cloudinary.com/dvzg70krq/image/upload/v1789378700/file_00000000110081fbad6ea464dc721a58_hzasvk.png" />
+
+  <meta property="og:title" content="اندرويد 2 | جوالات وشاشات" />
+  <meta property="og:description" content="جوالات أصلية ومضمونة بأفضل الأسعار، صيانة احترافية وفورية لجميع أنواع الشاشات والبطاريات." />
+  <meta property="og:image" content="https://res.cloudinary.com/dvzg70krq/image/upload/v1789378694/1789377856259_yfdkgq.jpg" />
+  <meta property="og:type" content="website" />
+
+  <meta name="theme-color" content="#991122" />
+
+  <!-- تثبيت التطبيق (PWA) -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="https://res.cloudinary.com/dvzg70krq/image/upload/v1789378700/file_00000000110081fbad6ea464dc721a58_hzasvk.png" />
+  <meta name="apple-mobile-web-app-title" content="اندرويد 2" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --bg-color: #121216;
+      --card-bg: #1e1e24;
+      --brand-red: #b91530;
+      --brand-red-dark: #810a1e;
+      --brand-green: #a4c639;
+      --brand-green-dark: #6b8226;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      
+      --key-bg: #32323a;
+      --key-bottom: #111115;
+      --key-border: #4b4b56;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      font-family: 'Tajawal', sans-serif;
+    }
+
+    body {
+      background: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 10px;
+    }
+
+    .card-container {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card-bg);
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(255,255,255,0.05);
+      position: relative;
+      border: 6px solid #2a2a32;
+    }
+
+    .hero {
+      height: 220px;
+      position: relative;
+      background-color: #000;
+    }
+    .hero img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.9;
+    }
+    .hero-overlay {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 100%;
+      background: linear-gradient(to top, var(--card-bg) 0%, rgba(30, 30, 36, 0.6) 30%, transparent 100%);
+    }
+
+    .content {
+      padding: 0 20px 25px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: -65px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .avatar-wrapper {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: var(--card-bg);
+      padding: 6px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    }
+    .avatar-wrapper img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: #fff;
+      object-fit: contain;
+      padding: 5px;
+      border: 2px solid var(--brand-red);
+    }
+
+    .title {
+      font-size: 26px;
+      font-weight: 900;
+      margin-top: 10px;
+      display: flex; align-items: center; gap: 8px; justify-content: center;
+      color: #fff;
+    }
+    .subtitle {
+      color: var(--brand-green);
+      font-size: 13px;
+      font-weight: 700;
+      margin-top: 2px;
+      text-align: center;
+    }
+    .description {
+      background: rgba(0, 0, 0, 0.2);
+      border-left: 3px solid var(--brand-red);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #cbd5e1;
+      text-align: right;
+      margin-top: 15px;
+      line-height: 1.6;
+      width: 100%;
+    }
+
+    .mobile-key {
+      background: linear-gradient(180deg, #4b4b56 0%, #32323a 100%);
+      border: 1px solid var(--key-border);
+      border-radius: 12px;
+      box-shadow: 
+        inset 0 1px 1px rgba(255,255,255,0.1), 
+        0 4px 0 var(--key-bottom), 
+        0 5px 10px rgba(0,0,0,0.4);
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.1s ease;
+      font-weight: bold;
+    }
+    .mobile-key:active {
+      transform: translateY(4px);
+      box-shadow: 
+        inset 0 1px 1px rgba(255,255,255,0.1), 
+        0 0 0 var(--key-bottom), 
+        0 1px 2px rgba(0,0,0,0.4);
+    }
+
+    .key-green {
+      background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+      border-color: #4ade80;
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.3), 0 4px 0 #14532d, 0 5px 10px rgba(0,0,0,0.4);
+      color: #fff;
+    }
+    .key-green:active { box-shadow: inset 0 1px 1px rgba(255,255,255,0.3), 0 0 0 #14532d, 0 1px 2px rgba(0,0,0,0.4); }
+
+    .key-red {
+      background: linear-gradient(180deg, var(--brand-red) 0%, var(--brand-red-dark) 100%);
+      border-color: #f43f5e;
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.3), 0 4px 0 #4c0512, 0 5px 10px rgba(0,0,0,0.4);
+      color: #fff;
+    }
+    .key-red:active { box-shadow: inset 0 1px 1px rgba(255,255,255,0.3), 0 0 0 #4c0512, 0 1px 2px rgba(0,0,0,0.4); }
+
+    .btn-wide {
+      width: 100%;
+      padding: 16px;
+      font-size: 14px;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      width: 100%; text-align: right;
+      font-size: 13px; color: var(--text-muted); font-weight: 800;
+      margin: 20px 0 12px;
+      border-bottom: 1px dashed #32323a;
+      padding-bottom: 5px;
+    }
+
+    .social-numpad {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%;
+    }
+    .key-social {
+      padding: 12px; flex-direction: column; gap: 8px; font-size: 13px; height: 80px;
+    }
+    .key-social i { font-size: 22px; }
+
+    footer {
+      text-align: center; margin-top: 25px; padding-top: 15px;
+      width: 100%; font-size: 11px; color: var(--text-muted);
+    }
+
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+      z-index: 100; display: none; justify-content: center; align-items: center; padding: 15px;
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .modal-overlay.active { display: flex; opacity: 1; }
+    .modal-card {
+      background: #1e1e24; border: 2px solid var(--brand-red);
+      width: 100%; max-width: 400px; border-radius: 20px; padding: 20px;
+      max-height: 85vh; overflow-y: auto; transform: scale(0.95); transition: 0.3s ease;
+    }
+    .modal-overlay.active .modal-card { transform: scale(1); }
+    
+    .modal-item {
+      background: rgba(0,0,0,0.2); border-right: 3px solid var(--brand-green);
+      padding: 12px; border-radius: 8px; margin-bottom: 12px;
+    }
+    .modal-item h4 { font-size: 14px; margin-bottom: 4px; color: #fff;}
+    .modal-item p { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+    .catalog-filters {
+      display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 12px;
+    }
+    .filter-chip {
+      flex-shrink: 0; padding: 7px 14px; border-radius: 20px; border: 1px solid var(--key-border);
+      background: #26262e; color: var(--text-muted); font-size: 12px; font-weight: 700; cursor: pointer;
+    }
+    .filter-chip.active { background: var(--brand-green); color: #12210a; border-color: var(--brand-green); }
+
+    .device-card {
+      display: flex; gap: 10px; background: rgba(0,0,0,0.2); border-radius: 12px;
+      padding: 10px; margin-bottom: 10px; border: 1px solid #2a2a32;
+    }
+    .device-card img {
+      width: 70px; height: 70px; border-radius: 10px; object-fit: cover; background: #000; flex-shrink: 0;
+    }
+    .device-card .d-info { flex: 1; min-width: 0; text-align: right; }
+    .device-card .d-info h4 { font-size: 14px; color: #fff; margin-bottom: 3px; }
+    .device-card .d-info .d-price { color: var(--brand-green); font-weight: 800; font-size: 14px; }
+    .device-card .d-info p { font-size: 11px; color: var(--text-muted); margin-top: 3px; line-height: 1.5; }
+    .device-card .d-badges { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+    .d-badge { font-size: 9px; padding: 2px 7px; border-radius: 20px; background: #32323a; color: #cbd5e1; }
+    .d-badge.green { background: rgba(164,198,57,0.15); color: var(--brand-green); }
+    .device-card .d-actions { display: flex; align-items: center; }
+    .btn-reserve {
+      background: var(--brand-red); color: #fff; border: none; border-radius: 10px;
+      padding: 8px 10px; font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap;
+    }
+
+    .form-field { margin-bottom: 12px; text-align: right; }
+    .form-field label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
+    .form-field input, .form-field textarea {
+      width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--key-border);
+      background: #16161a; color: #fff; font-size: 13px; font-family: inherit;
+    }
+    .form-field textarea { resize: vertical; min-height: 60px; }
+  </style>
+</head>
+<body>
+
+  <main class="card-container">
+    <header class="hero">
+      <img src="https://res.cloudinary.com/dvzg70krq/image/upload/v1789378694/1789377856259_yfdkgq.jpg" alt="اندرويد 2">
+      <div class="hero-overlay"></div>
+    </header>
+
+    <section class="content">
+      <div class="avatar-wrapper">
+        <img src="https://res.cloudinary.com/dvzg70krq/image/upload/v1789378700/file_00000000110081fbad6ea464dc721a58_hzasvk.png" alt="شعار اندرويد 2">
+      </div>
+
+      <h1 class="title">أندرويد 2</h1>
+      <p class="subtitle">إنترنت واتصالات • بيع وصيانة</p>
+
+      <div class="description">
+        جوالات أصلية ومضمونة بأفضل الأسعار، صيانة احترافية وفورية لجميع أنواع الشاشات والبطاريات مع كفالة وجودة عالية.
+      </div>
+
+      <div style="width: 100%; margin-top: 25px;">
+        <button class="mobile-key key-green btn-wide" onclick="toggleModal('catalogModal', true)">
+          <i class="fa-solid fa-book-open"></i> استعراض الكتالوج والعروض
+        </button>
+        <button class="mobile-key key-red btn-wide" onclick="downloadVCard()">
+          <i class="fa-solid fa-address-card"></i> حفظ جهة الاتصال (Save)
+        </button>
+        <button class="mobile-key btn-wide" id="installBtn" style="display:none; background:#26262e; color:#fff; border-color:#4b4b56;" onclick="handleInstallClick()">
+          <i class="fa-solid fa-download"></i> تثبيت التطبيق على الجهاز
+        </button>
+      </div>
+
+      <div class="section-title">أرقام الاتصال المباشر (Dialer)</div>
+      
+      <div class="social-numpad">
+        <a href="tel:00963944712490" class="mobile-key key-social">
+          <i class="fa-solid fa-phone" style="color: #e11d48;"></i>
+          <span>اتصال بسام</span>
+        </a>
+        <a href="https://wa.me/963944712490" target="_blank" rel="noopener noreferrer" class="mobile-key key-social">
+          <i class="fa-brands fa-whatsapp" style="color: #22c55e;"></i>
+          <span>واتساب بسام</span>
+        </a>
+        <a href="tel:00963962328668" class="mobile-key key-social">
+          <i class="fa-solid fa-phone" style="color: #e11d48;"></i>
+          <span>اتصال أحمد</span>
+        </a>
+        <a href="https://wa.me/963962328668" target="_blank" rel="noopener noreferrer" class="mobile-key key-social">
+          <i class="fa-brands fa-whatsapp" style="color: #22c55e;"></i>
+          <span>واتساب أحمد</span>
+        </a>
+      </div>
+
+      <div class="section-title">التطبيقات والموقع (Apps)</div>
+      
+      <div class="social-numpad">
+        <a href="https://wa.me/963944712490" target="_blank" rel="noopener noreferrer" class="mobile-key key-social">
+          <i class="fa-brands fa-whatsapp" style="color: #22c55e;"></i>
+          <span>خدمة العملاء</span>
+        </a>
+        <a href="https://maps.app.goo.gl/6HUKpBCcruHFdW257" target="_blank" rel="noopener noreferrer" class="mobile-key key-social">
+          <i class="fa-solid fa-location-dot" style="color: #e11d48;"></i>
+          <span>الموقع الجغرافي</span>
+        </a>
+        <a href="https://www.facebook.com/share/19ttoksNWz/" target="_blank" rel="noopener noreferrer" class="mobile-key key-social">
+          <i class="fa-brands fa-facebook-f" style="color: #3b82f6;"></i>
+          <span>فيسبوك</span>
+        </a>
+        <a href="https://www.instagram.com/bsam.alhmade?stkn=MXhqNzE0c2sxNjdxcA==" target="_blank" rel="noopener noreferrer" class="mobile-key key-social">
+          <i class="fa-brands fa-instagram" style="color: #f43f5e;"></i>
+          <span>إنستغرام</span>
+        </a>
+      </div>
+
+      <footer>
+        جودة موثوقة وخدمة احترافية على مدار الأسبوع <br>
+        <span style="font-size: 10px;">جميع الحقوق محفوظة © اندرويد 2</span>
+      </footer>
+    </section>
+  </main>
+
+  <div class="modal-overlay" id="catalogModal">
+    <div class="modal-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; border-bottom: 1px dashed #4b4b56; padding-bottom: 10px;">
+        <h3 style="color: #fff;"><i class="fa-solid fa-list"></i> الكتالوج الرقمي</h3>
+        <button onclick="toggleModal('catalogModal', false)" class="mobile-key" style="width: 30px; height: 30px; border-radius: 50%;" aria-label="إغلاق">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="catalog-filters" id="catalogFilters">
+        <button class="filter-chip active" data-filter="all" onclick="setFilter('all')">الكل</button>
+        <button class="filter-chip" data-filter="featured" onclick="setFilter('featured')">موصى به</button>
+      </div>
+
+      <div id="devicesContainer">
+        <p style="text-align:center; color:var(--text-muted); font-size:13px; padding: 20px 0;">جارٍ تحميل الأجهزة...</p>
+      </div>
+
+      <a href="https://wa.me/963944712490?text=مرحباً، أرغب بالاستفسار عن السعر والمواصفات" target="_blank" rel="noopener noreferrer" class="mobile-key key-green btn-wide" style="margin-top: 15px;">
+        <i class="fa-brands fa-whatsapp"></i> طلب استفسار عبر واتساب
+      </a>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="reserveModal">
+    <div class="modal-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px; border-bottom: 1px dashed #4b4b56; padding-bottom: 10px;">
+        <h3 style="color: #fff;"><i class="fa-solid fa-calendar-check"></i> حجز جهاز</h3>
+        <button onclick="toggleModal('reserveModal', false)" class="mobile-key" style="width: 30px; height: 30px; border-radius: 50%;" aria-label="إغلاق">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <p id="reserveDeviceName" style="color: var(--brand-green); font-weight: 800; margin-bottom: 12px; text-align: right;"></p>
+
+      <div class="form-field">
+        <label>الاسم الكامل</label>
+        <input type="text" id="resName" placeholder="اسمك" />
+      </div>
+      <div class="form-field">
+        <label>رقم الهاتف</label>
+        <input type="tel" id="resPhone" placeholder="09XXXXXXXX" />
+      </div>
+      <div class="form-field">
+        <label>ملاحظة (اختياري)</label>
+        <textarea id="resNote" placeholder="أي تفاصيل إضافية..."></textarea>
+      </div>
+
+      <button class="mobile-key key-green btn-wide" onclick="submitReservation()">
+        <i class="fa-solid fa-check"></i> تأكيد طلب الحجز
+      </button>
+      <p id="reserveMsg" style="text-align:center; font-size:12px; margin-top:8px; color: var(--brand-green);"></p>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="iosInstallModal">
+    <div class="modal-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px; border-bottom: 1px dashed #4b4b56; padding-bottom: 10px;">
+        <h3 style="color: #fff;"><i class="fa-solid fa-mobile-screen"></i> تثبيت التطبيق على آيفون</h3>
+        <button onclick="toggleModal('iosInstallModal', false)" class="mobile-key" style="width: 30px; height: 30px; border-radius: 50%;" aria-label="إغلاق">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-item">
+        <h4><i class="fa-solid fa-1" style="color:var(--brand-green);"></i> اضغط على زر المشاركة (Share)</h4>
+        <p>في شريط Safari السفلي، اضغط على أيقونة المشاركة <i class="fa-solid fa-arrow-up-from-bracket"></i></p>
+      </div>
+      <div class="modal-item">
+        <h4><i class="fa-solid fa-2" style="color:var(--brand-green);"></i> اختر "إضافة إلى الشاشة الرئيسية"</h4>
+        <p>مرّر لأسفل في قائمة الخيارات واضغط Add to Home Screen</p>
+      </div>
+      <div class="modal-item">
+        <h4><i class="fa-solid fa-3" style="color:var(--brand-green);"></i> اضغط "إضافة"</h4>
+        <p>سيظهر أيقونة التطبيق على شاشتك الرئيسية مثل أي تطبيق عادي.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==== إعدادات Supabase — عدّل هذين السطرين حسب مشروعك ====
+    const SUPABASE_URL = "https://sbtbkfarxapuxkmgwepw.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNidGJrZmFyeGFwdXhrbWd3ZXB3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0MzE1MzIsImV4cCI6MjEwNTAwNzUzMn0.p9Mz-anhx5GweB7bNtApVjDXra6OjagDC9Jh9DaUdms";
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let allDevices = [];
+    let currentFilter = 'all';
+    let selectedDeviceId = null;
+
+    async function loadCatalog() {
+      const container = document.getElementById('devicesContainer');
+      const { data, error } = await supabaseClient
+        .from('devices')
+        .select('*')
+        .eq('available', true)
+        .order('featured', { ascending: false })
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:13px;">تعذّر تحميل الكتالوج حالياً</p>';
+        return;
+      }
+
+      allDevices = data || [];
+      buildBrandFilters();
+      renderDevices();
+    }
+
+    function buildBrandFilters() {
+      const filtersEl = document.getElementById('catalogFilters');
+      const brands = [...new Set(allDevices.map(d => d.brand))];
+      const existing = filtersEl.querySelectorAll('[data-brand]');
+      existing.forEach(el => el.remove());
+      brands.forEach(brand => {
+        const btn = document.createElement('button');
+        btn.className = 'filter-chip';
+        btn.dataset.brand = brand;
+        btn.textContent = brand;
+        btn.onclick = () => setFilter(brand);
+        filtersEl.appendChild(btn);
+      });
+    }
+
+    function setFilter(filter) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-chip').forEach(chip => {
+        const chipVal = chip.dataset.filter || chip.dataset.brand;
+        chip.classList.toggle('active', chipVal === filter);
+      });
+      renderDevices();
+    }
+
+    function renderDevices() {
+      const container = document.getElementById('devicesContainer');
+      let list = allDevices;
+      if (currentFilter === 'featured') list = list.filter(d => d.featured);
+      else if (currentFilter !== 'all') list = list.filter(d => d.brand === currentFilter);
+
+      if (!list.length) {
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:13px; padding: 20px 0;">لا توجد أجهزة متاحة حالياً</p>';
+        return;
+      }
+
+      container.innerHTML = list.map(d => `
+        <div class="device-card">
+          <img src="${d.image_url || 'https://via.placeholder.com/70'}" alt="${d.brand} ${d.model}" />
+          <div class="d-info">
+            <h4>${d.brand} ${d.model}</h4>
+            <div class="d-price">$${Number(d.price).toFixed(0)}</div>
+            ${d.specs ? `<p>${d.specs}</p>` : ''}
+            <div class="d-badges">
+              <span class="d-badge ${d.condition === 'جديد' ? 'green' : ''}">${d.condition}</span>
+              ${d.color ? `<span class="d-badge">${d.color}</span>` : ''}
+              ${d.trade_in ? '<span class="d-badge green">يقبل الاستبدال</span>' : ''}
+            </div>
+          </div>
+          <div class="d-actions">
+            <button class="btn-reserve" onclick="openReserve('${d.id}', '${(d.brand + ' ' + d.model).replace(/'/g, "\\'")}')">
+              <i class="fa-solid fa-calendar-check"></i> احجز
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openReserve(deviceId, deviceName) {
+      selectedDeviceId = deviceId;
+      document.getElementById('reserveDeviceName').textContent = deviceName;
+      document.getElementById('resName').value = '';
+      document.getElementById('resPhone').value = '';
+      document.getElementById('resNote').value = '';
+      document.getElementById('reserveMsg').textContent = '';
+      toggleModal('catalogModal', false);
+      toggleModal('reserveModal', true);
+    }
+
+    async function submitReservation() {
+      const name = document.getElementById('resName').value.trim();
+      const phone = document.getElementById('resPhone').value.trim();
+      const note = document.getElementById('resNote').value.trim();
+      const msgEl = document.getElementById('reserveMsg');
+
+      if (!name || !phone) {
+        msgEl.style.color = '#f87171';
+        msgEl.textContent = 'الرجاء إدخال الاسم ورقم الهاتف';
+        return;
+      }
+
+      const { error } = await supabaseClient.from('reservations').insert({
+        device_id: selectedDeviceId,
+        customer_name: name,
+        customer_phone: phone,
+        note: note || null
+      });
+
+      if (error) {
+        msgEl.style.color = '#f87171';
+        msgEl.textContent = 'حدث خطأ، الرجاء المحاولة مجدداً';
+        return;
+      }
+
+      msgEl.style.color = 'var(--brand-green)';
+      msgEl.textContent = 'تم إرسال طلب الحجز بنجاح، سنتواصل معك قريباً';
+      setTimeout(() => toggleModal('reserveModal', false), 1800);
+    }
+
+    loadCatalog();
+  </script>
+
+  <script>
+    function toggleModal(id, show) {
+      const modal = document.getElementById(id);
+      if(show) {
+        modal.classList.add('active');
+      } else {
+        modal.classList.remove('active');
+      }
+    }
+
+    document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+      overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+          toggleModal(overlay.id, false);
+        }
+      });
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.active').forEach(function(overlay) {
+          toggleModal(overlay.id, false);
+        });
+      }
+    });
+
+    function downloadVCard() {
+      const vcard = "BEGIN:VCARD\nVERSION:3.0\nN:;اندرويد 2;;;\nFN:اندرويد 2\nORG:اندرويد 2 للصيانة والجوالات\nTEL;TYPE=CELL:00963944712490\nTEL;TYPE=CELL:00963962328668\nEND:VCARD";
+      const blob = new Blob([vcard], { type: "text/vcard" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "Android2.vcf";
+      link.click();
+    }
+
+    // ---------- تثبيت التطبيق (PWA) ----------
+    let deferredInstallPrompt = null;
+    const installBtn = document.getElementById('installBtn');
+
+    function isIOSDevice() {
+      return /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+    }
+    function isStandaloneMode() {
+      return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    }
+
+    function handleInstallClick() {
+      if (isIOSDevice()) {
+        toggleModal('iosInstallModal', true);
+        return;
+      }
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        deferredInstallPrompt.userChoice.finally(() => {
+          deferredInstallPrompt = null;
+          installBtn.style.display = 'none';
+        });
+      }
+    }
+
+    if (!isStandaloneMode()) {
+      if (isIOSDevice()) {
+        installBtn.style.display = 'flex';
+      } else {
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          deferredInstallPrompt = e;
+          installBtn.style.display = 'flex';
+        });
+        window.addEventListener('appinstalled', () => {
+          installBtn.style.display = 'none';
+        });
+      }
+    }
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
