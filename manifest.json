@@ -2,7 +2,7 @@
   "name": "اندرويد 2 - جوالات وشاشات",
   "short_name": "اندرويد 2",
   "description": "بيع وصيانة جوالات، كتالوج رقمي وحجز الأجهزة",
-  "start_url": "./android2.html",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
