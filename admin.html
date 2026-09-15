@@ -1,570 +1,613 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>لوحة التحكم | اندرويد 2</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>إدارة التطبيق | اندرويد 2</title>
 
-<link rel="icon" type="image/png" href="https://res.cloudinary.com/dvzg70krq/image/upload/v1789378700/file_00000000110081fbad6ea464dc721a58_hzasvk.png" />
+  <!-- إعدادات تطبيق الويب PWA -->
+  <link rel="manifest" href="admin-manifest.json">
+  <link rel="apple-touch-icon" href="https://res.cloudinary.com/dvzg70krq/image/upload/v1789378700/file_00000000110081fbad6ea464dc721a58_hzasvk.png">
+  <meta name="theme-color" content="#121216">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-<!-- تثبيت التطبيق (PWA) -->
-<link rel="manifest" href="admin-manifest.json" />
-<link rel="apple-touch-icon" href="https://res.cloudinary.com/dvzg70krq/image/upload/v1789378700/file_00000000110081fbad6ea464dc721a58_hzasvk.png" />
-<meta name="apple-mobile-web-app-title" content="إدارة اندرويد 2" />
-<meta name="mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="theme-color" content="#b91530" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --primary: #b91530; 
+      --primary-hover: #810a1e;
+      --bg: #121216;
+      --card-bg: #1e1e24;
+      --input-bg: #26262e;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #32323a;
+      --danger: #f87171;
+      --success: #4ade80;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg); color: var(--text); padding: 12px; display: flex; justify-content: center; min-height: 100vh; }
+    .container { width: 100%; max-width: 500px; }
 
-<style>
-  :root {
-    --bg-color: #121216;
-    --card-bg: #1e1e24;
-    --card-bg-2: #26262e;
-    --brand-red: #b91530;
-    --brand-red-dark: #810a1e;
-    --brand-green: #a4c639;
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    --border-col: #32323a;
-  }
-  * { box-sizing: border-box; margin:0; padding:0; font-family:'Tajawal', sans-serif; }
-  body {
-    background: var(--bg-color);
-    color: var(--text-main);
-    min-height: 100vh;
-    padding: 16px;
-  }
-  .wrap { max-width: 900px; margin: 0 auto; }
+    /* شاشة القفل / الدخول */
+    #lockScreen {
+      position: fixed; inset: 0; background: var(--bg); z-index: 9999;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
+    }
+    .lock-card {
+      background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px;
+      padding: 30px 20px; width: 100%; max-width: 360px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    }
+    .lock-logo {
+      width: 65px; height: 65px; border-radius: 14px; border: 1px solid var(--primary);
+      margin-bottom: 12px; object-fit: cover; background: #fff; padding: 3px;
+    }
+    .input-box {
+      width: 100%; padding: 12px; text-align: right; font-size: 1rem;
+      background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; color: #fff;
+      outline: none; margin-bottom: 12px;
+    }
+    .input-box:focus { border-color: var(--primary); }
 
-  /* ---------- Login ---------- */
-  #loginScreen {
-    max-width: 380px; margin: 60px auto; background: var(--card-bg);
-    border-radius: 20px; padding: 30px 24px; border: 1px solid var(--border-col);
-  }
-  #loginScreen h2 { text-align:center; margin-bottom: 20px; }
-  .field { margin-bottom: 14px; }
-  .field label { display:block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
-  .field input, .field select, .field textarea {
-    width: 100%; padding: 11px 12px; border-radius: 10px; border: 1px solid var(--border-col);
-    background: #16161a; color: var(--text-main); font-size: 14px; font-family: inherit;
-  }
-  .field textarea { resize: vertical; min-height: 70px; }
-  .btn {
-    display:inline-flex; align-items:center; justify-content:center; gap:8px;
-    padding: 12px 18px; border-radius: 12px; border:none; cursor:pointer;
-    font-weight:700; font-size:14px; font-family:inherit; color:#fff;
-  }
-  .btn-block { width:100%; }
-  .btn-green { background: var(--brand-green); color:#12210a; }
-  .btn-red { background: var(--brand-red); }
-  .btn-outline { background: transparent; border:1px solid var(--border-col); color: var(--text-main); }
-  .btn-sm { padding: 7px 12px; font-size: 12px; }
-  .error-msg { color: #f87171; font-size: 13px; margin-top: 10px; text-align:center; }
+    /* الشريط العلوي */
+    .header-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    }
+    .header-title {
+      display: flex; align-items: center; gap: 8px; font-family: 'Cairo', sans-serif;
+      font-weight: 800; color: #fff; font-size: 1.1rem;
+    }
+    .header-logo { width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--primary); background: #fff; }
+    .btn-logout { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 6px 12px; border-radius: 6px; font-size: 0.82rem; font-weight: bold; cursor: pointer; }
 
-  /* ---------- App shell ---------- */
-  #appScreen { display:none; }
-  header.topbar {
-    display:flex; align-items:center; justify-content:space-between;
-    margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--border-col);
-  }
-  header.topbar h1 { font-size: 20px; }
-  .tabs { display:flex; gap: 8px; margin-bottom: 18px; }
-  .tab-btn {
-    flex:1; padding: 12px; border-radius: 12px; border:1px solid var(--border-col);
-    background: var(--card-bg); color: var(--text-muted); cursor:pointer; font-weight:700; font-size: 13px;
-  }
-  .tab-btn.active { background: var(--brand-red); color:#fff; border-color: var(--brand-red); }
+    /* التبويبات الرئيسية */
+    .tabs { display: flex; gap: 8px; margin-bottom: 15px; }
+    .tab-btn {
+      flex: 1; padding: 12px; background: var(--card-bg); border: 1px solid var(--border);
+      color: var(--muted); font-family: 'Cairo', sans-serif; font-weight: 700; font-size: 0.95rem;
+      border-radius: 8px; cursor: pointer; transition: 0.2s; text-align: center;
+    }
+    .tab-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
 
-  .panel { display:none; }
-  .panel.active { display:block; }
+    .card { background: var(--card-bg); border-radius: 12px; padding: 16px; border: 1px solid var(--border); }
+    
+    /* أزرار الحالة (إضافة / تعديل) */
+    .sub-mode { display: flex; gap: 8px; margin-bottom: 15px; background: #16161a; padding: 4px; border-radius: 8px; }
+    .sub-mode button {
+      flex: 1; padding: 8px; border: none; background: transparent; color: #aaa;
+      border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 700;
+    }
+    .sub-mode button.active { background: var(--border); color: #fff; }
 
-  .card {
-    background: var(--card-bg); border:1px solid var(--border-col); border-radius: 16px;
-    padding: 16px; margin-bottom: 14px;
-  }
-  .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  @media (max-width: 480px) { .grid2 { grid-template-columns: 1fr; } }
+    .form-group { margin-bottom: 12px; position: relative; }
+    label { display: block; font-size: 0.82rem; color: #bbb; margin-bottom: 5px; font-weight: 600; }
+    input, select, textarea {
+      width: 100%; padding: 10px 12px; background: var(--input-bg); border: 1px solid var(--border);
+      border-radius: 8px; color: #fff; font-size: 0.95rem; outline: none; font-family: inherit;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+    textarea { resize: vertical; min-height: 80px; }
 
-  .device-row {
-    display:flex; gap: 12px; background: var(--card-bg-2); border-radius: 14px; padding: 10px;
-    margin-bottom: 10px; align-items:center;
-  }
-  .device-row img {
-    width: 64px; height: 64px; border-radius: 10px; object-fit: cover; background:#000; flex-shrink:0;
-  }
-  .device-row .info { flex:1; min-width:0; }
-  .device-row .info h4 { font-size: 14px; margin-bottom: 2px; }
-  .device-row .info p { font-size: 12px; color: var(--text-muted); }
-  .device-row .badges { display:flex; gap:6px; margin-top: 4px; flex-wrap:wrap; }
-  .badge { font-size: 10px; padding: 2px 8px; border-radius: 20px; background:#32323a; color:#cbd5e1; }
-  .badge.green { background: rgba(164,198,57,0.15); color: var(--brand-green); }
-  .badge.red { background: rgba(185,21,48,0.2); color: #fca5a5; }
-  .device-row .actions { display:flex; flex-direction:column; gap: 6px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-  .res-row {
-    background: var(--card-bg-2); border-radius: 14px; padding: 12px; margin-bottom: 10px;
-    border-right: 3px solid var(--brand-green);
-  }
-  .res-row.status-مؤكد { border-right-color: var(--brand-green); }
-  .res-row.status-قيد_الانتظار { border-right-color: #fbbf24; }
-  .res-row.status-ملغى { border-right-color: var(--brand-red); opacity: 0.6; }
-  .res-row h4 { font-size: 14px; margin-bottom: 4px; }
-  .res-row p { font-size: 12px; color: var(--text-muted); margin-bottom: 2px; }
-  .res-row .res-actions { display:flex; gap:8px; margin-top: 10px; }
+    .upload-box {
+      border: 1px dashed var(--muted); padding: 12px; text-align: center;
+      border-radius: 8px; cursor: pointer; color: var(--text); font-size: 0.88rem; display: block; font-weight: bold; background: var(--input-bg);
+    }
+    .img-preview { width: 100%; max-height: 150px; object-fit: contain; border-radius: 8px; margin-top: 8px; display: none; background: #000; }
 
-  .empty-state { text-align:center; color: var(--text-muted); font-size: 13px; padding: 30px 0; }
-  .toast {
-    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-    background: var(--card-bg-2); border: 1px solid var(--border-col); padding: 10px 18px;
-    border-radius: 12px; font-size: 13px; opacity:0; transition: 0.3s; pointer-events:none; z-index: 200;
-  }
-  .toast.show { opacity: 1; }
-
-  .modal-overlay {
-    position: fixed; top:0; left:0; width:100%; height:100%;
-    background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
-    z-index: 300; display:none; justify-content:center; align-items:center; padding: 15px;
-  }
-  .modal-overlay.active { display:flex; }
-  .modal-card {
-    background: var(--card-bg); border: 2px solid var(--brand-red);
-    width: 100%; max-width: 400px; border-radius: 20px; padding: 20px;
-    max-height: 85vh; overflow-y: auto;
-  }
-  .modal-step {
-    background: rgba(0,0,0,0.2); border-right: 3px solid var(--brand-green);
-    padding: 12px; border-radius: 8px; margin-bottom: 12px;
-  }
-  .modal-step h4 { font-size: 14px; margin-bottom: 4px; color:#fff; }
-  .modal-step p { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
-</style>
+    .submit-btn {
+      width: 100%; padding: 13px; background: var(--primary); color: #fff; border: none;
+      border-radius: 8px; font-family: 'Cairo', sans-serif; font-weight: 800; font-size: 1rem;
+      cursor: pointer; margin-top: 10px; transition: 0.2s;
+    }
+    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .status { text-align: center; margin-top: 10px; font-size: 0.88rem; font-weight: bold; }
+    .hidden { display: none !important; }
+  </style>
 </head>
 <body>
 
-<div class="wrap">
-
-  <!-- ============ شاشة الدخول ============ -->
-  <div id="loginScreen">
-    <h2><i class="fa-solid fa-shield-halved"></i> دخول لوحة التحكم</h2>
-    <div class="field">
-      <label>البريد الإلكتروني</label>
-      <input type="email" id="loginEmail" placeholder="admin@example.com" />
-    </div>
-    <div class="field">
-      <label>كلمة المرور</label>
-      <input type="password" id="loginPassword" placeholder="••••••••" />
-    </div>
-    <button class="btn btn-red btn-block" onclick="login()">
-      <i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول
-    </button>
-    <p class="error-msg" id="loginError"></p>
-  </div>
-
-  <!-- ============ لوحة التحكم ============ -->
-  <div id="appScreen">
-    <header class="topbar">
-      <h1><i class="fa-solid fa-mobile-screen-button"></i> إدارة اندرويد 2</h1>
-      <div style="display:flex; gap:8px;">
-        <button class="btn btn-outline btn-sm" id="installBtn" style="display:none;" onclick="handleInstallClick()">
-          <i class="fa-solid fa-download"></i> تثبيت
-        </button>
-        <button class="btn btn-outline btn-sm" onclick="logout()">
-          <i class="fa-solid fa-right-from-bracket"></i> خروج
-        </button>
-      </div>
-    </header>
-
-    <div class="tabs">
-      <button class="tab-btn active" id="tabBtnDevices" onclick="switchTab('devices')">
-        <i class="fa-solid fa-mobile-screen"></i> الأجهزة
-      </button>
-      <button class="tab-btn" id="tabBtnReservations" onclick="switchTab('reservations')">
-        <i class="fa-solid fa-calendar-check"></i> الحجوزات
-      </button>
-    </div>
-
-    <!-- ---- تبويب الأجهزة ---- -->
-    <div class="panel active" id="panelDevices">
-      <div class="card">
-        <h3 style="margin-bottom:12px;" id="formTitle">إضافة جهاز جديد</h3>
-        <div class="grid2">
-          <div class="field">
-            <label>الماركة</label>
-            <input type="text" id="fBrand" placeholder="سامسونج / شاومي / آبل ..." />
-          </div>
-          <div class="field">
-            <label>الموديل</label>
-            <input type="text" id="fModel" placeholder="Galaxy S23" />
-          </div>
-          <div class="field">
-            <label>الحالة</label>
-            <select id="fCondition">
-              <option value="جديد">جديد</option>
-              <option value="مستعمل">مستعمل</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>اللون</label>
-            <input type="text" id="fColor" placeholder="أسود" />
-          </div>
-          <div class="field">
-            <label>السعر ($)</label>
-            <input type="number" id="fPrice" placeholder="250" />
-          </div>
-          <div class="field">
-            <label>صورة الجهاز</label>
-            <input type="file" id="fImage" accept="image/*" />
-          </div>
-        </div>
-        <div class="field">
-          <label>المواصفات</label>
-          <textarea id="fSpecs" placeholder="8GB RAM / 256GB تخزين / شاشة AMOLED ..."></textarea>
-        </div>
-        <div class="grid2">
-          <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
-            <input type="checkbox" id="fTradeIn" style="width:auto;" /> يقبل الاستبدال / المقايضة
-          </label>
-          <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
-            <input type="checkbox" id="fFeatured" style="width:auto;" /> موصى به (يظهر مميزاً)
-          </label>
-        </div>
-        <div style="display:flex; gap:10px; margin-top:14px;">
-          <button class="btn btn-green" onclick="saveDevice()">
-            <i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnLabel">حفظ الجهاز</span>
-          </button>
-          <button class="btn btn-outline" id="cancelEditBtn" style="display:none;" onclick="resetForm()">
-            إلغاء التعديل
-          </button>
-        </div>
-      </div>
-
-      <div id="devicesList"></div>
-    </div>
-
-    <!-- ---- تبويب الحجوزات ---- -->
-    <div class="panel" id="panelReservations">
-      <div id="reservationsList"></div>
-    </div>
+<!-- شاشة الدخول (إيميل وباسوورد) -->
+<div id="lockScreen">
+  <div class="lock-card">
+    <img class="lock-logo" src="https://res.cloudinary.com/dvzg70krq/image/upload/v1789378700/file_00000000110081fbad6ea464dc721a58_hzasvk.png" alt="شعار الإدارة">
+    <h3 style="font-family:'Cairo'; font-weight:800; color: #fff; margin-bottom: 4px;">إدارة اندرويد 2</h3>
+    <p style="font-size: 0.82rem; color: var(--muted); margin-bottom: 20px;">تسجيل الدخول الآمن</p>
+    <form onsubmit="handleLogin(event)">
+      <input type="email" id="loginEmail" class="input-box" placeholder="البريد الإلكتروني" required>
+      <input type="password" id="loginPassword" class="input-box" placeholder="كلمة المرور" required>
+      <button type="submit" id="loginBtn" class="submit-btn">دخول</button>
+    </form>
+    <div id="loginError" style="color: var(--danger); font-size: 0.85rem; margin-top: 10px; font-weight: bold;"></div>
   </div>
 </div>
 
-<div class="modal-overlay" id="iosInstallModal">
-  <div class="modal-card">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px; border-bottom: 1px dashed var(--border-col); padding-bottom: 10px;">
-      <h3><i class="fa-solid fa-mobile-screen"></i> تثبيت لوحة التحكم على آيفون</h3>
-      <button onclick="toggleModal('iosInstallModal', false)" class="btn btn-outline btn-sm" style="width:30px; height:30px; border-radius:50%; padding:0;" aria-label="إغلاق">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
+<!-- لوحة التحكم -->
+<div class="container hidden" id="adminContent">
+  <div class="header-bar">
+    <div class="header-title">
+      <img class="header-logo" src="https://res.cloudinary.com/dvzg70krq/image/upload/v1789378700/file_00000000110081fbad6ea464dc721a58_hzasvk.png" alt="أيقونة">
+      <span>إدارة متجر اندرويد 2</span>
     </div>
-    <div class="modal-step">
-      <h4><i class="fa-solid fa-1" style="color:var(--brand-green);"></i> اضغط زر المشاركة (Share)</h4>
-      <p>في شريط Safari السفلي، اضغط أيقونة المشاركة <i class="fa-solid fa-arrow-up-from-bracket"></i></p>
+    <button class="btn-logout" onclick="logout()">خروج 🚪</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchMainTab('devices')">📱 الأجهزة والاكسسوارات</button>
+    <button class="tab-btn" onclick="switchMainTab('offers')">🔥 عروض السلايدر</button>
+  </div>
+
+  <!-- قسم الأجهزة -->
+  <div id="devicesSection" class="card">
+    <div class="sub-mode">
+      <button id="dModeAdd" class="active" onclick="setDeviceMode('add')">➕ إضافة جديد</button>
+      <button id="dModeEdit" onclick="setDeviceMode('edit')">✏️ تعديل صنف</button>
     </div>
-    <div class="modal-step">
-      <h4><i class="fa-solid fa-2" style="color:var(--brand-green);"></i> اختر "إضافة إلى الشاشة الرئيسية"</h4>
-      <p>مرّر لأسفل في قائمة الخيارات واضغط Add to Home Screen</p>
+
+    <form id="deviceForm" onsubmit="saveDevice(event)">
+      <!-- مجموعة اختيار الجهاز للتعديل مع مربع البحث -->
+      <div id="selectDeviceGroup" class="form-group hidden" style="background: var(--input-bg); padding: 10px; border-radius: 8px; border: 1px solid var(--border);">
+        <label>ابحث واختر الجهاز للتعديل:</label>
+        <input type="text" id="searchEditDevice" placeholder="🔍 اكتب للبحث السريع (مثال: iPhone)..." class="input-box" style="margin-bottom:8px;" onkeyup="filterEditDevices()">
+        <select id="editDeviceSelect" onchange="loadDeviceData()">
+          <option value="">-- جاري التحميل... --</option>
+        </select>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>الماركة / التصنيف *</label>
+          <input type="text" id="fBrand" required placeholder="مثال: آبل، شاومي، شواحن...">
+        </div>
+        <div class="form-group">
+          <label>الموديل / الاسم *</label>
+          <input type="text" id="fModel" required placeholder="مثال: iPhone 14">
+        </div>
+      </div>
+      
+      <div class="grid-2">
+        <div class="form-group">
+          <label>الحالة</label>
+          <select id="fCondition">
+            <option value="جديد">جديد</option>
+            <option value="مستعمل">مستعمل</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>السعر ($) *</label>
+          <input type="number" id="fPrice" required placeholder="0">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>اللون (اختياري)</label>
+        <input type="text" id="fColor" placeholder="أسود، أبيض...">
+      </div>
+
+      <div class="form-group">
+        <label>المواصفات المختصرة</label>
+        <textarea id="fSpecs" placeholder="الذاكرة، الرام، المعالج..."></textarea>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>حالة الظهور بالكتالوج</label>
+          <select id="fAvailable">
+            <option value="true">متوفر (مرئي)</option>
+            <option value="false">مخفي</option>
+          </select>
+        </div>
+        <div class="form-group" style="display:flex; flex-direction:column; justify-content:center; gap:8px; padding-top:15px;">
+          <label style="display:flex; align-items:center; gap:8px; font-size:12px; cursor:pointer; color:#fff; margin:0;">
+            <input type="checkbox" id="fTradeIn"> يقبل المقايضة
+          </label>
+          <label style="display:flex; align-items:center; gap:8px; font-size:12px; cursor:pointer; color:#fff; margin:0;">
+            <input type="checkbox" id="fFeatured"> توصية فقط (تأمين بالطلب)
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>صورة الجهاز (اختياري عند التعديل)</label>
+        <label for="fImage" class="upload-box">📷 اختيار صورة من الجوال</label>
+        <input type="file" id="fImage" accept="image/*" style="display:none;" onchange="previewImg(this, 'fPreview')">
+        <img id="fPreview" class="img-preview" alt="معاينة">
+      </div>
+
+      <button type="submit" id="dSubmitBtn" class="submit-btn">حفظ الجهاز</button>
+      <div id="dStatus" class="status"></div>
+    </form>
+  </div>
+
+  <!-- قسم العروض -->
+  <div id="offersSection" class="card hidden">
+    <div class="sub-mode">
+      <button id="oModeAdd" class="active" onclick="setOfferMode('add')">➕ إضافة عرض جديد</button>
+      <button id="oModeEdit" onclick="setOfferMode('edit')">✏️ تعديل عرض قائم</button>
     </div>
-    <div class="modal-step">
-      <h4><i class="fa-solid fa-3" style="color:var(--brand-green);"></i> اضغط "إضافة"</h4>
-      <p>ستظهر أيقونة لوحة التحكم على شاشتك الرئيسية مثل أي تطبيق عادي.</p>
-    </div>
+
+    <form id="offerForm" onsubmit="saveOffer(event)">
+      <!-- مجموعة اختيار العرض للتعديل -->
+      <div id="selectOfferGroup" class="form-group hidden" style="background: var(--input-bg); padding: 10px; border-radius: 8px; border: 1px solid var(--border);">
+        <label>ابحث واختر العرض للتعديل:</label>
+        <input type="text" id="searchEditOffer" placeholder="🔍 اكتب اسم العرض للبحث..." class="input-box" style="margin-bottom:8px;" onkeyup="filterEditOffers()">
+        <select id="editOfferSelect" onchange="loadOfferData()">
+          <option value="">-- جاري التحميل... --</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>عنوان العرض (يظهر على الصورة)</label>
+        <input type="text" id="oTitle" placeholder="عرض خاص، خصم نهاية الأسبوع...">
+      </div>
+
+      <div class="form-group">
+        <label>ربط العرض بجهاز (ليتم حجزه مباشرة عند النقر)</label>
+        <select id="oDevice">
+          <option value="">بدون ربط (عرض صورة ووصف فقط)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>وصف العرض (في حال عدم الربط)</label>
+        <textarea id="oDescription" placeholder="تفاصيل الخصم أو البكج..."></textarea>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>ترتيب الظهور (الأقل يظهر أولاً)</label>
+          <input type="number" id="oSortOrder" value="0">
+        </div>
+        <div class="form-group">
+          <label>حالة الظهور بالسلايدر</label>
+          <select id="oActive">
+            <option value="true">فعّال (يظهر)</option>
+            <option value="false">متوقف (مخفي)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>صورة السلايدر</label>
+        <label for="oImage" class="upload-box">📷 اختيار صورة العرض</label>
+        <input type="file" id="oImage" accept="image/*" style="display:none;" onchange="previewImg(this, 'oPreview')">
+        <img id="oPreview" class="img-preview" alt="معاينة">
+      </div>
+
+      <button type="submit" id="oSubmitBtn" class="submit-btn">حفظ العرض</button>
+      <div id="oStatus" class="status"></div>
+    </form>
   </div>
 </div>
-
-<div class="toast" id="toast"></div>
 
 <script>
-  // ==== إعدادات Supabase — عدّل هذين السطرين حسب مشروعك ====
+  // ==== إعدادات Supabase ====
   const SUPABASE_URL = "https://sbtbkfarxapuxkmgwepw.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNidGJrZmFyeGFwdXhrbWd3ZXB3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0MzE1MzIsImV4cCI6MjEwNTAwNzUzMn0.p9Mz-anhx5GweB7bNtApVjDXra6OjagDC9Jh9DaUdms";
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  let editingId = null;
+  let allDevices = [];
+  let allOffers = [];
+  let currentDeviceMode = 'add';
+  let currentOfferMode = 'add';
 
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2200);
+  // معاينة الصورة
+  function previewImg(input, previewId) {
+    if (input.files && input.files[0]) {
+      const img = document.getElementById(previewId);
+      img.src = URL.createObjectURL(input.files[0]);
+      img.style.display = 'block';
+    }
   }
 
-  // ---------- الدخول والخروج ----------
-  async function login() {
+  // ---------- المصادقة ----------
+  async function handleLogin(e) {
+    e.preventDefault();
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
-    const errEl = document.getElementById('loginError');
-    errEl.textContent = '';
-    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-    if (error) {
-      errEl.textContent = 'فشل الدخول: تحقق من البريد وكلمة المرور';
-      return;
-    }
-    enterApp();
+    const btn = document.getElementById('loginBtn');
+    const err = document.getElementById('loginError');
+    
+    btn.disabled = true; err.textContent = 'جاري التحقق... ⏳';
+    
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    btn.disabled = false;
+    
+    if (error) { err.textContent = 'البيانات غير صحيحة ❌'; } 
+    else { err.textContent = ''; enterApp(); }
   }
 
   async function logout() {
     await supabaseClient.auth.signOut();
-    document.getElementById('appScreen').style.display = 'none';
-    document.getElementById('loginScreen').style.display = 'block';
+    document.getElementById('adminContent').classList.add('hidden');
+    document.getElementById('lockScreen').classList.remove('hidden');
   }
 
   function enterApp() {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('appScreen').style.display = 'block';
-    loadDevices();
-    loadReservations();
+    document.getElementById('lockScreen').classList.add('hidden');
+    document.getElementById('adminContent').classList.remove('hidden');
+    loadAllData();
   }
 
-  // عند فتح الصفحة، تحقق إن كانت هناك جلسة قائمة
-  supabaseClient.auth.getSession().then(({ data }) => {
-    if (data.session) enterApp();
-  });
+  supabaseClient.auth.getSession().then(({ data }) => { if (data.session) enterApp(); });
 
-  // ---------- التبويبات ----------
-  function switchTab(tab) {
-    document.getElementById('panelDevices').classList.toggle('active', tab === 'devices');
-    document.getElementById('panelReservations').classList.toggle('active', tab === 'reservations');
-    document.getElementById('tabBtnDevices').classList.toggle('active', tab === 'devices');
-    document.getElementById('tabBtnReservations').classList.toggle('active', tab === 'reservations');
+  // ---------- التنقل والواجهة ----------
+  function switchMainTab(tab) {
+    const tabs = document.querySelectorAll('.tab-btn');
+    tabs[0].classList.toggle('active', tab === 'devices');
+    tabs[1].classList.toggle('active', tab === 'offers');
+
+    document.getElementById('devicesSection').classList.toggle('hidden', tab !== 'devices');
+    document.getElementById('offersSection').classList.toggle('hidden', tab !== 'offers');
   }
 
-  // ---------- الأجهزة ----------
+  function setDeviceMode(mode) {
+    currentDeviceMode = mode;
+    document.getElementById('dModeAdd').classList.toggle('active', mode === 'add');
+    document.getElementById('dModeEdit').classList.toggle('active', mode === 'edit');
+    document.getElementById('selectDeviceGroup').classList.toggle('hidden', mode === 'add');
+    
+    document.getElementById('deviceForm').reset();
+    document.getElementById('fPreview').style.display = 'none';
+    document.getElementById('dStatus').textContent = '';
+    
+    if (mode === 'edit') {
+      document.getElementById('searchEditDevice').value = '';
+      populateDeviceEditDropdown();
+    }
+  }
+
+  function setOfferMode(mode) {
+    currentOfferMode = mode;
+    document.getElementById('oModeAdd').classList.toggle('active', mode === 'add');
+    document.getElementById('oModeEdit').classList.toggle('active', mode === 'edit');
+    document.getElementById('selectOfferGroup').classList.toggle('hidden', mode === 'add');
+    
+    document.getElementById('offerForm').reset();
+    document.getElementById('oPreview').style.display = 'none';
+    document.getElementById('oStatus').textContent = '';
+    
+    if (mode === 'edit') {
+      document.getElementById('searchEditOffer').value = '';
+      populateOfferEditDropdown();
+    }
+  }
+
+  // ---------- جلب البيانات ----------
+  async function loadAllData() {
+    await Promise.all([loadDevices(), loadOffers()]);
+    populateOfferDeviceLinks();
+  }
+
   async function loadDevices() {
-    const listEl = document.getElementById('devicesList');
-    listEl.innerHTML = '<p class="empty-state">جارٍ التحميل...</p>';
-    const { data, error } = await supabaseClient
-      .from('devices')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      listEl.innerHTML = '<p class="empty-state">تعذّر تحميل الأجهزة</p>';
-      return;
-    }
-    if (!data.length) {
-      listEl.innerHTML = '<p class="empty-state">لا توجد أجهزة بعد — أضف أول جهاز أعلاه</p>';
-      return;
-    }
-
-    listEl.innerHTML = data.map(d => `
-      <div class="device-row">
-        <img src="${d.image_url || 'https://via.placeholder.com/64'}" alt="${d.brand}" />
-        <div class="info">
-          <h4>${d.brand} ${d.model}</h4>
-          <p>${d.color || ''} • $${Number(d.price).toFixed(0)}</p>
-          <div class="badges">
-            <span class="badge ${d.condition === 'جديد' ? 'green' : ''}">${d.condition}</span>
-            ${d.trade_in ? '<span class="badge">يقبل الاستبدال</span>' : ''}
-            ${d.featured ? '<span class="badge green">موصى به</span>' : ''}
-            ${!d.available ? '<span class="badge red">مخفي</span>' : ''}
-          </div>
-        </div>
-        <div class="actions">
-          <button class="btn btn-outline btn-sm" onclick="editDevice('${d.id}')"><i class="fa-solid fa-pen"></i></button>
-          <button class="btn btn-outline btn-sm" onclick="toggleAvailable('${d.id}', ${d.available})">
-            <i class="fa-solid ${d.available ? 'fa-eye-slash' : 'fa-eye'}"></i>
-          </button>
-          <button class="btn btn-outline btn-sm" onclick="deleteDevice('${d.id}')"><i class="fa-solid fa-trash" style="color:#f87171;"></i></button>
-        </div>
-      </div>
-    `).join('');
-
-    window._devicesCache = data;
+    const { data } = await supabaseClient.from('devices').select('*').order('created_at', { ascending: false });
+    allDevices = data || [];
+    if (currentDeviceMode === 'edit') populateDeviceEditDropdown();
+    populateOfferDeviceLinks();
   }
 
-  async function saveDevice() {
-    const brand = document.getElementById('fBrand').value.trim();
-    const model = document.getElementById('fModel').value.trim();
-    const condition = document.getElementById('fCondition').value;
-    const color = document.getElementById('fColor').value.trim();
-    const price = parseFloat(document.getElementById('fPrice').value) || 0;
-    const specs = document.getElementById('fSpecs').value.trim();
-    const tradeIn = document.getElementById('fTradeIn').checked;
-    const featured = document.getElementById('fFeatured').checked;
+  async function loadOffers() {
+    const { data } = await supabaseClient.from('offers').select('*').order('sort_order', { ascending: true });
+    allOffers = data || [];
+    if (currentOfferMode === 'edit') populateOfferEditDropdown();
+  }
+
+  // ---------- تعبئة القوائم المنسدلة ووظائف البحث السريع ----------
+  function populateDeviceEditDropdown(filterText = '') {
+    const select = document.getElementById('editDeviceSelect');
+    const filtered = allDevices.filter(d => 
+      (d.brand + ' ' + d.model).toLowerCase().includes(filterText.toLowerCase())
+    );
+    select.innerHTML = '<option value="">-- اختر للتعديل --</option>' + 
+      filtered.map(d => `<option value="${d.id}">${d.brand} ${d.model} ($${d.price})</option>`).join('');
+  }
+
+  function filterEditDevices() {
+    const query = document.getElementById('searchEditDevice').value;
+    populateDeviceEditDropdown(query);
+  }
+
+  function populateOfferEditDropdown(filterText = '') {
+    const select = document.getElementById('editOfferSelect');
+    const filtered = allOffers.filter(o => 
+      (o.title || 'عرض بدون عنوان').toLowerCase().includes(filterText.toLowerCase())
+    );
+    select.innerHTML = '<option value="">-- اختر للتعديل --</option>' + 
+      filtered.map(o => `<option value="${o.id}">${o.title || 'عرض بدون عنوان'}</option>`).join('');
+  }
+
+  function filterEditOffers() {
+    const query = document.getElementById('searchEditOffer').value;
+    populateOfferEditDropdown(query);
+  }
+
+  function populateOfferDeviceLinks() {
+    const select = document.getElementById('oDevice');
+    const current = select.value;
+    select.innerHTML = '<option value="">بدون ربط (عرض صورة ووصف فقط)</option>' + 
+      allDevices.map(d => `<option value="${d.id}">${d.brand} ${d.model}</option>`).join('');
+    select.value = current;
+  }
+
+  // ---------- تعبئة الفورم عند الاختيار ----------
+  function loadDeviceData() {
+    const id = document.getElementById('editDeviceSelect').value;
+    const d = allDevices.find(x => x.id === id);
+    if (!d) { document.getElementById('deviceForm').reset(); document.getElementById('fPreview').style.display = 'none'; return; }
+    
+    document.getElementById('fBrand').value = d.brand || '';
+    document.getElementById('fModel').value = d.model || '';
+    document.getElementById('fCondition').value = d.condition || 'مستعمل';
+    document.getElementById('fPrice').value = d.price || '';
+    document.getElementById('fColor').value = d.color || '';
+    document.getElementById('fSpecs').value = d.specs || '';
+    document.getElementById('fAvailable').value = (d.available !== false).toString();
+    document.getElementById('fTradeIn').checked = !!d.trade_in;
+    document.getElementById('fFeatured').checked = !!d.featured;
+    
+    const preview = document.getElementById('fPreview');
+    if (d.image_url) { preview.src = d.image_url; preview.style.display = 'block'; }
+    else { preview.style.display = 'none'; }
+  }
+
+  function loadOfferData() {
+    const id = document.getElementById('editOfferSelect').value;
+    const o = allOffers.find(x => x.id === id);
+    if (!o) { document.getElementById('offerForm').reset(); document.getElementById('oPreview').style.display = 'none'; return; }
+
+    document.getElementById('oTitle').value = o.title || '';
+    document.getElementById('oDevice').value = o.device_id || '';
+    document.getElementById('oDescription').value = o.description || '';
+    document.getElementById('oSortOrder').value = o.sort_order || 0;
+    document.getElementById('oActive').value = (o.active !== false).toString();
+    
+    const preview = document.getElementById('oPreview');
+    if (o.image_url) { preview.src = o.image_url; preview.style.display = 'block'; }
+    else { preview.style.display = 'none'; }
+  }
+
+  // ---------- الحفظ والإرسال (الأجهزة) ----------
+  async function saveDevice(e) {
+    e.preventDefault();
+    if (currentDeviceMode === 'edit' && !document.getElementById('editDeviceSelect').value) {
+      alert('يرجى اختيار جهاز لتعديله أولاً'); return;
+    }
+
+    const btn = document.getElementById('dSubmitBtn');
+    const status = document.getElementById('dStatus');
+    btn.disabled = true; status.style.color = '#fff'; status.textContent = 'جاري الحفظ... ⏳';
+
+    const payload = {
+      brand: document.getElementById('fBrand').value.trim(),
+      model: document.getElementById('fModel').value.trim(),
+      condition: document.getElementById('fCondition').value,
+      price: parseFloat(document.getElementById('fPrice').value) || 0,
+      color: document.getElementById('fColor').value.trim(),
+      specs: document.getElementById('fSpecs').value.trim(),
+      available: document.getElementById('fAvailable').value === 'true',
+      trade_in: document.getElementById('fTradeIn').checked,
+      featured: document.getElementById('fFeatured').checked
+    };
+
     const fileInput = document.getElementById('fImage');
-
-    if (!brand || !model) {
-      showToast('الماركة والموديل مطلوبان');
-      return;
-    }
-
-    let imageUrl = null;
     if (fileInput.files && fileInput.files[0]) {
+      status.textContent = 'جاري رفع الصورة... ☁️';
       const file = fileInput.files[0];
-      const path = `${Date.now()}_${file.name}`;
+      const path = `devices/${Date.now()}_${file.name}`;
       const { error: upErr } = await supabaseClient.storage.from('device-images').upload(path, file);
-      if (upErr) {
-        showToast('فشل رفع الصورة');
-        return;
+      if (!upErr) {
+        const { data: pub } = supabaseClient.storage.from('device-images').getPublicUrl(path);
+        payload.image_url = pub.publicUrl;
       }
-      const { data: pub } = supabaseClient.storage.from('device-images').getPublicUrl(path);
-      imageUrl = pub.publicUrl;
     }
-
-    const payload = { brand, model, condition, color, price, specs, trade_in: tradeIn, featured };
-    if (imageUrl) payload.image_url = imageUrl;
 
     let error;
-    if (editingId) {
-      ({ error } = await supabaseClient.from('devices').update(payload).eq('id', editingId));
+    if (currentDeviceMode === 'edit') {
+      const id = document.getElementById('editDeviceSelect').value;
+      ({ error } = await supabaseClient.from('devices').update(payload).eq('id', id));
     } else {
       ({ error } = await supabaseClient.from('devices').insert(payload));
     }
 
-    if (error) {
-      showToast('حدث خطأ أثناء الحفظ');
-      return;
-    }
-    showToast(editingId ? 'تم تحديث الجهاز' : 'تمت إضافة الجهاز');
-    resetForm();
-    loadDevices();
-  }
-
-  function editDevice(id) {
-    const d = (window._devicesCache || []).find(x => x.id === id);
-    if (!d) return;
-    editingId = id;
-    document.getElementById('fBrand').value = d.brand || '';
-    document.getElementById('fModel').value = d.model || '';
-    document.getElementById('fCondition').value = d.condition || 'مستعمل';
-    document.getElementById('fColor').value = d.color || '';
-    document.getElementById('fPrice').value = d.price || '';
-    document.getElementById('fSpecs').value = d.specs || '';
-    document.getElementById('fTradeIn').checked = !!d.trade_in;
-    document.getElementById('fFeatured').checked = !!d.featured;
-    document.getElementById('formTitle').textContent = 'تعديل الجهاز';
-    document.getElementById('saveBtnLabel').textContent = 'حفظ التعديلات';
-    document.getElementById('cancelEditBtn').style.display = 'inline-flex';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  function resetForm() {
-    editingId = null;
-    ['fBrand','fModel','fColor','fPrice','fSpecs'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('fCondition').value = 'جديد';
-    document.getElementById('fTradeIn').checked = false;
-    document.getElementById('fFeatured').checked = false;
-    document.getElementById('fImage').value = '';
-    document.getElementById('formTitle').textContent = 'إضافة جهاز جديد';
-    document.getElementById('saveBtnLabel').textContent = 'حفظ الجهاز';
-    document.getElementById('cancelEditBtn').style.display = 'none';
-  }
-
-  async function toggleAvailable(id, current) {
-    const { error } = await supabaseClient.from('devices').update({ available: !current }).eq('id', id);
-    if (error) { showToast('تعذّر التحديث'); return; }
-    loadDevices();
-  }
-
-  async function deleteDevice(id) {
-    if (!confirm('حذف هذا الجهاز نهائياً؟')) return;
-    const { error } = await supabaseClient.from('devices').delete().eq('id', id);
-    if (error) { showToast('تعذّر الحذف'); return; }
-    showToast('تم الحذف');
-    loadDevices();
-  }
-
-  // ---------- الحجوزات ----------
-  async function loadReservations() {
-    const listEl = document.getElementById('reservationsList');
-    listEl.innerHTML = '<p class="empty-state">جارٍ التحميل...</p>';
-    const { data, error } = await supabaseClient
-      .from('reservations')
-      .select('*, devices(brand, model)')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      listEl.innerHTML = '<p class="empty-state">تعذّر تحميل الحجوزات</p>';
-      return;
-    }
-    if (!data.length) {
-      listEl.innerHTML = '<p class="empty-state">لا توجد طلبات حجز حالياً</p>';
-      return;
-    }
-
-    listEl.innerHTML = data.map(r => `
-      <div class="res-row status-${r.status.replace(' ', '_')}">
-        <h4>${r.customer_name} — ${r.customer_phone}</h4>
-        <p>الجهاز: ${r.devices ? (r.devices.brand + ' ' + r.devices.model) : 'محذوف'}</p>
-        ${r.note ? `<p>ملاحظة: ${r.note}</p>` : ''}
-        <p>الحالة الحالية: <strong>${r.status}</strong></p>
-        <div class="res-actions">
-          <button class="btn btn-green btn-sm" onclick="updateReservationStatus('${r.id}', 'مؤكد')">تأكيد</button>
-          <button class="btn btn-red btn-sm" onclick="updateReservationStatus('${r.id}', 'ملغى')">إلغاء</button>
-          <a class="btn btn-outline btn-sm" href="tel:${r.customer_phone}"><i class="fa-solid fa-phone"></i></a>
-        </div>
-      </div>
-    `).join('');
-  }
-
-  async function updateReservationStatus(id, status) {
-    const { error } = await supabaseClient.from('reservations').update({ status }).eq('id', id);
-    if (error) { showToast('تعذّر التحديث'); return; }
-    showToast('تم تحديث حالة الحجز');
-    loadReservations();
-  }
-
-  function toggleModal(id, show) {
-    const modal = document.getElementById(id);
-    if (show) modal.classList.add('active');
-    else modal.classList.remove('active');
-  }
-  document.getElementById('iosInstallModal').addEventListener('click', (e) => {
-    if (e.target.id === 'iosInstallModal') toggleModal('iosInstallModal', false);
-  });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') toggleModal('iosInstallModal', false);
-  });
-
-  // ---------- تثبيت التطبيق (PWA) ----------
-  let deferredInstallPrompt = null;
-  const installBtn = document.getElementById('installBtn');
-
-  function isIOSDevice() {
-    return /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
-  }
-  function isStandaloneMode() {
-    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-  }
-
-  function handleInstallClick() {
-    if (isIOSDevice()) {
-      toggleModal('iosInstallModal', true);
-      return;
-    }
-    if (deferredInstallPrompt) {
-      deferredInstallPrompt.prompt();
-      deferredInstallPrompt.userChoice.finally(() => {
-        deferredInstallPrompt = null;
-        installBtn.style.display = 'none';
-      });
-    }
-  }
-
-  if (!isStandaloneMode()) {
-    if (isIOSDevice()) {
-      installBtn.style.display = 'inline-flex';
+    btn.disabled = false;
+    if (error) { status.style.color = 'var(--danger)'; status.textContent = '❌ حدث خطأ أثناء الحفظ'; return; }
+    
+    status.style.color = 'var(--success)'; status.textContent = '✅ تم الحفظ بنجاح';
+    
+    if (currentDeviceMode === 'add') {
+      document.getElementById('deviceForm').reset();
+      document.getElementById('fPreview').style.display = 'none';
     } else {
-      window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredInstallPrompt = e;
-        installBtn.style.display = 'inline-flex';
-      });
-      window.addEventListener('appinstalled', () => {
-        installBtn.style.display = 'none';
-      });
+      document.getElementById('searchEditDevice').value = '';
     }
+    
+    await loadDevices();
+    setTimeout(() => { status.textContent = ''; }, 3000);
   }
 
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js').catch(() => {});
-    });
+  // ---------- الحفظ والإرسال (العروض) ----------
+  async function saveOffer(e) {
+    e.preventDefault();
+    if (currentOfferMode === 'edit' && !document.getElementById('editOfferSelect').value) {
+      alert('يرجى اختيار عرض لتعديله أولاً'); return;
+    }
+
+    const btn = document.getElementById('oSubmitBtn');
+    const status = document.getElementById('oStatus');
+    btn.disabled = true; status.style.color = '#fff'; status.textContent = 'جاري الحفظ... ⏳';
+
+    const payload = {
+      title: document.getElementById('oTitle').value.trim() || null,
+      device_id: document.getElementById('oDevice').value || null,
+      description: document.getElementById('oDescription').value.trim() || null,
+      sort_order: parseInt(document.getElementById('oSortOrder').value) || 0,
+      active: document.getElementById('oActive').value === 'true'
+    };
+
+    const fileInput = document.getElementById('oImage');
+    if (fileInput.files && fileInput.files[0]) {
+      status.textContent = 'جاري رفع الصورة... ☁️';
+      const file = fileInput.files[0];
+      
+      // تنظيف اسم الملف من المسافات والرموز لتجنب أخطاء الروابط
+      const cleanFileName = file.name.replace(/[^a-zA-Z0-9.\-]/g, '_');
+      const path = `offers/${Date.now()}_${cleanFileName}`;
+      
+      // توحيد الرفع ليكون على نفس الـ Bucket الخاص بالأجهزة
+      const { error: upErr } = await supabaseClient.storage.from('device-images').upload(path, file);
+      
+      if (upErr) {
+        btn.disabled = false; 
+        status.style.color = 'var(--danger)'; 
+        status.textContent = '❌ فشل رفع الصورة: ' + upErr.message; 
+        return; // إيقاف العملية حتى لا يتم الحفظ بدون صورة
+      }
+      
+      const { data: pub } = supabaseClient.storage.from('device-images').getPublicUrl(path);
+      payload.image_url = pub.publicUrl;
+      
+    } else if (currentOfferMode === 'add') {
+      btn.disabled = false; 
+      status.style.color = 'var(--danger)'; 
+      status.textContent = '❌ صورة العرض مطلوبة'; 
+      return;
+    }
+
+    let error;
+    if (currentOfferMode === 'edit') {
+      const id = document.getElementById('editOfferSelect').value;
+      ({ error } = await supabaseClient.from('offers').update(payload).eq('id', id));
+    } else {
+      ({ error } = await supabaseClient.from('offers').insert(payload));
+    }
+
+    btn.disabled = false;
+    if (error) { 
+        status.style.color = 'var(--danger)'; 
+        status.textContent = '❌ حدث خطأ أثناء الحفظ'; 
+        console.error(error);
+        return; 
+    }
+    
+    status.style.color = 'var(--success)'; status.textContent = '✅ تم الحفظ بنجاح';
+    
+    if (currentOfferMode === 'add') {
+      document.getElementById('offerForm').reset();
+      document.getElementById('oPreview').style.display = 'none';
+    } else {
+      document.getElementById('searchEditOffer').value = '';
+    }
+    
+    await loadOffers();
+    setTimeout(() => { status.textContent = ''; }, 3000);
   }
 </script>
 </body>
