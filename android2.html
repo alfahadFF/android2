@@ -12,7 +12,7 @@
   <meta property="og:image" content="https://res.cloudinary.com/dvzg70krq/image/upload/v1789378694/1789377856259_yfdkgq.jpg" />
   <meta property="og:type" content="website" />
 
-  <meta name="theme-color" content="#991122" />
+  <meta name="theme-color" content="#121216" />
 
   <!-- تثبيت التطبيق (PWA) -->
   <link rel="manifest" href="manifest.json" />
@@ -26,6 +26,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  
+  <!-- مكتبة Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -38,9 +40,7 @@
       --brand-green-dark: #6b8226;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
-      
-      --key-bg: #32323a;
-      --key-bottom: #111115;
+      --border: #2a2a32;
       --key-border: #4b4b56;
     }
 
@@ -58,213 +58,190 @@
       min-height: 100vh;
       display: flex;
       justify-content: center;
-      padding: 10px;
+      padding: 0; 
     }
 
     .card-container {
       width: 100%;
-      max-width: 420px;
+      max-width: 100%;
       background: var(--card-bg);
-      border-radius: 28px;
+      border-radius: 0; 
       overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(255,255,255,0.05);
+      min-height: 100vh;
       position: relative;
-      border: 6px solid #2a2a32;
+      border: none;
     }
 
+    /* الهيدر الرئيسي وصورة المحل */
     .hero {
       height: 220px;
       position: relative;
       background-color: #000;
     }
-    .hero img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0.9;
+    .hero img { 
+      width: 100%; 
+      height: 100%; 
+      object-fit: cover; 
+      object-position: top; /* التعديل هنا: تثبيت الجزء العلوي من الصورة لظهور اللوحة */
+      opacity: 0.9; 
     }
     .hero-overlay {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 100%;
+      position: absolute; bottom: 0; left: 0; right: 0; height: 100%;
       background: linear-gradient(to top, var(--card-bg) 0%, rgba(30, 30, 36, 0.6) 30%, transparent 100%);
     }
 
     .content {
-      padding: 0 20px 25px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-top: -65px;
-      position: relative;
-      z-index: 2;
+      padding: 0 20px 25px; display: flex; flex-direction: column; align-items: center;
+      margin-top: -65px; position: relative; z-index: 2;
     }
 
     .avatar-wrapper {
-      position: relative;
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      background: var(--card-bg);
-      padding: 6px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+      position: relative; width: 120px; height: 120px; border-radius: 50%;
+      background: var(--card-bg); padding: 6px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
     }
     .avatar-wrapper img {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      background: #fff;
-      object-fit: contain;
-      padding: 5px;
-      border: 2px solid var(--brand-red);
+      width: 100%; height: 100%; border-radius: 50%; background: #fff;
+      object-fit: contain; padding: 5px; border: 2px solid var(--brand-red);
     }
 
-    .title {
-      font-size: 26px;
-      font-weight: 900;
-      margin-top: 10px;
-      display: flex; align-items: center; gap: 8px; justify-content: center;
-      color: #fff;
-    }
-    .subtitle {
-      color: var(--brand-green);
-      font-size: 13px;
-      font-weight: 700;
-      margin-top: 2px;
-      text-align: center;
-    }
+    .title { font-size: 26px; font-weight: 900; margin-top: 10px; color: #fff; }
+    .subtitle { color: var(--brand-green); font-size: 13px; font-weight: 700; margin-top: 2px; }
     .description {
-      background: rgba(0, 0, 0, 0.2);
-      border-left: 3px solid var(--brand-red);
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 13px;
-      color: #cbd5e1;
-      text-align: right;
-      margin-top: 15px;
-      line-height: 1.6;
-      width: 100%;
+      background: rgba(0, 0, 0, 0.2); border-left: 3px solid var(--brand-red);
+      padding: 12px; border-radius: 8px; font-size: 13px; color: #cbd5e1;
+      text-align: right; margin-top: 15px; line-height: 1.6; width: 100%;
     }
 
+    /* الأزرار */
     .mobile-key {
       background: linear-gradient(180deg, #4b4b56 0%, #32323a 100%);
-      border: 1px solid var(--key-border);
-      border-radius: 12px;
-      box-shadow: 
-        inset 0 1px 1px rgba(255,255,255,0.1), 
-        0 4px 0 var(--key-bottom), 
-        0 5px 10px rgba(0,0,0,0.4);
-      color: #e2e8f0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.1s ease;
-      font-weight: bold;
+      border: 1px solid var(--key-border); border-radius: 12px;
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 4px 0 #111115, 0 5px 10px rgba(0,0,0,0.4);
+      color: #e2e8f0; display: flex; align-items: center; justify-content: center;
+      text-decoration: none; cursor: pointer; font-weight: bold; transition: all 0.1s ease;
     }
-    .mobile-key:active {
-      transform: translateY(4px);
-      box-shadow: 
-        inset 0 1px 1px rgba(255,255,255,0.1), 
-        0 0 0 var(--key-bottom), 
-        0 1px 2px rgba(0,0,0,0.4);
+    .mobile-key:active { transform: translateY(4px); box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 0 0 #111115, 0 1px 2px rgba(0,0,0,0.4); }
+
+    .key-green { background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%); border-color: #4ade80; color: #fff; }
+    .key-red { background: linear-gradient(180deg, var(--brand-red) 0%, var(--brand-red-dark) 100%); border-color: #f43f5e; color: #fff; }
+    .btn-wide { width: 100%; padding: 16px; font-size: 14px; gap: 10px; margin-bottom: 12px; }
+    
+    .section-title { width: 100%; text-align: right; font-size: 13px; color: var(--text-muted); font-weight: 800; margin: 20px 0 12px; border-bottom: 1px dashed #32323a; padding-bottom: 5px; }
+
+    /* سلايدر العروض الاحترافي 3D */
+    .slider-section { text-align: center; width: 100%; flex-shrink: 0; padding-top: 15px; background: var(--bg-color); }
+    .slider-hint { font-size: 13px; color: var(--brand-green); margin-bottom: 15px; font-weight: 800; }
+    .slider-wrapper { width: 100%; height: 240px; perspective: 900px; display: flex; justify-content: center; align-items: center; overflow: hidden; margin-bottom: 10px; }
+    
+    .carousel-3d {
+      width: 170px; height: 215px; position: relative;
+      transform-style: preserve-3d; animation: rotate3d 20s infinite linear;
+    }
+    .carousel-3d:hover { animation-play-state: paused; }
+    
+    .carousel-card {
+      position: absolute; width: 170px; height: 215px; border-radius: 16px; overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.15); background: var(--card-bg);
+      cursor: pointer; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6); transition: border-color 0.3s;
+    }
+    .carousel-card:hover { border-color: var(--brand-green); }
+    .carousel-card img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .carousel-card .label {
+      position: absolute; bottom: 0; width: 100%;
+      background: linear-gradient(0deg, rgba(0,0,0,0.95), rgba(0,0,0,0.4));
+      color: #fff; font-size: 0.85rem; font-weight: 800; text-align: center; padding: 8px 4px;
     }
 
-    .key-green {
-      background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
-      border-color: #4ade80;
-      box-shadow: inset 0 1px 1px rgba(255,255,255,0.3), 0 4px 0 #14532d, 0 5px 10px rgba(0,0,0,0.4);
-      color: #fff;
-    }
-    .key-green:active { box-shadow: inset 0 1px 1px rgba(255,255,255,0.3), 0 0 0 #14532d, 0 1px 2px rgba(0,0,0,0.4); }
-
-    .key-red {
-      background: linear-gradient(180deg, var(--brand-red) 0%, var(--brand-red-dark) 100%);
-      border-color: #f43f5e;
-      box-shadow: inset 0 1px 1px rgba(255,255,255,0.3), 0 4px 0 #4c0512, 0 5px 10px rgba(0,0,0,0.4);
-      color: #fff;
-    }
-    .key-red:active { box-shadow: inset 0 1px 1px rgba(255,255,255,0.3), 0 0 0 #4c0512, 0 1px 2px rgba(0,0,0,0.4); }
-
-    .btn-wide {
-      width: 100%;
-      padding: 16px;
-      font-size: 14px;
-      gap: 10px;
-      margin-bottom: 12px;
+    @keyframes rotate3d {
+      from { transform: rotateY(0deg); }
+      to { transform: rotateY(360deg); }
     }
 
-    .section-title {
-      width: 100%; text-align: right;
-      font-size: 13px; color: var(--text-muted); font-weight: 800;
-      margin: 20px 0 12px;
-      border-bottom: 1px dashed #32323a;
-      padding-bottom: 5px;
-    }
-
-    .social-numpad {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%;
-    }
-    .key-social {
-      padding: 12px; flex-direction: column; gap: 8px; font-size: 13px; height: 80px;
-    }
-    .key-social i { font-size: 22px; }
-
-    footer {
-      text-align: center; margin-top: 25px; padding-top: 15px;
-      width: 100%; font-size: 11px; color: var(--text-muted);
-    }
-
+    /* تنسيق الكتالوج (شاشة كاملة) */
     .modal-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
-      z-index: 100; display: none; justify-content: center; align-items: center; padding: 15px;
-      opacity: 0; transition: opacity 0.3s ease;
+      position: fixed; inset: 0; background: var(--bg-color);
+      z-index: 1000; display: none; flex-direction: column; opacity: 0; transition: opacity 0.3s ease;
     }
-    .modal-overlay.active { display: flex; opacity: 1; }
-    .modal-card {
-      background: #1e1e24; border: 2px solid var(--brand-red);
-      width: 100%; max-width: 400px; border-radius: 20px; padding: 20px;
+    .modal-overlay.active { display: flex; opacity: 1; overflow-y: auto; }
+    
+    #catalogModal .modal-card {
+      width: 100%; max-width: 100%; height: 100%; max-height: 100%;
+      border-radius: 0; border: none; padding: 0; background: var(--bg-color);
+      transform: none; display: flex; flex-direction: column;
+    }
+
+    /* النوافذ المنبثقة الأصغر للتفاصيل والحجز */
+    .modal-card-small {
+      background: var(--card-bg); border: 2px solid var(--brand-red);
+      width: 90%; max-width: 400px; border-radius: 20px; padding: 20px; margin: auto;
       max-height: 85vh; overflow-y: auto; transform: scale(0.95); transition: 0.3s ease;
     }
-    .modal-overlay.active .modal-card { transform: scale(1); }
+    .modal-overlay.active .modal-card-small { transform: scale(1); }
+
+    .catalog-header {
+      position: sticky; top: 0; background: var(--bg-color); z-index: 10;
+      padding: 15px 20px; border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
     
-    .modal-item {
-      background: rgba(0,0,0,0.2); border-right: 3px solid var(--brand-green);
-      padding: 12px; border-radius: 8px; margin-bottom: 12px;
+    /* أدوات الفلترة والبحث */
+    .filter-section {
+      padding: 15px 20px 0; background: var(--card-bg); border-bottom: 1px solid var(--border);
     }
-    .modal-item h4 { font-size: 14px; margin-bottom: 4px; color: #fff;}
-    .modal-item p { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+    .search-box {
+      width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--key-border);
+      background: #121216; color: #fff; font-size: 14px; margin-bottom: 12px; outline: none;
+    }
+    .search-box:focus { border-color: var(--brand-green); }
+    
+    .advanced-filters { display: flex; gap: 10px; margin-bottom: 15px; }
+    .advanced-filters select {
+      flex: 1; padding: 10px; border-radius: 10px; background: #121216; color: #fff;
+      border: 1px solid var(--key-border); font-size: 13px; outline: none;
+    }
 
-    .catalog-filters {
-      display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 12px;
+    .tabs-bar {
+      display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 15px;
     }
-    .filter-chip {
-      flex-shrink: 0; padding: 7px 14px; border-radius: 20px; border: 1px solid var(--key-border);
-      background: #26262e; color: var(--text-muted); font-size: 12px; font-weight: 700; cursor: pointer;
+    .tabs-bar::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      background: var(--bg-color); color: var(--text-muted); border: 1px solid var(--key-border);
+      padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700;
+      cursor: pointer; white-space: nowrap; transition: 0.2s;
     }
-    .filter-chip.active { background: var(--brand-green); color: #12210a; border-color: var(--brand-green); }
+    .tab-btn.active { background: var(--brand-green); color: #121216; border-color: var(--brand-green); }
 
-    .device-card {
-      display: flex; gap: 10px; background: rgba(0,0,0,0.2); border-radius: 12px;
-      padding: 10px; margin-bottom: 10px; border: 1px solid #2a2a32;
+    /* شبكة المنتجات */
+    .catalog-container {
+      padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px;
+      flex: 1; background: var(--bg-color);
     }
-    .device-card img {
-      width: 70px; height: 70px; border-radius: 10px; object-fit: cover; background: #000; flex-shrink: 0;
+    .card {
+      background: var(--card-bg); border-radius: 16px; overflow: hidden;
+      border: 1px solid var(--border); display: flex; flex-direction: column;
+      cursor: pointer; transition: 0.2s;
     }
-    .device-card .d-info { flex: 1; min-width: 0; text-align: right; }
-    .device-card .d-info h4 { font-size: 14px; color: #fff; margin-bottom: 3px; }
-    .device-card .d-info .d-price { color: var(--brand-green); font-weight: 800; font-size: 14px; }
-    .device-card .d-info p { font-size: 11px; color: var(--text-muted); margin-top: 3px; line-height: 1.5; }
-    .device-card .d-badges { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
-    .d-badge { font-size: 9px; padding: 2px 7px; border-radius: 20px; background: #32323a; color: #cbd5e1; }
+    .card:active { transform: scale(0.97); }
+    .card img { width: 100%; height: 160px; object-fit: cover; background: #000; }
+    .card-content { padding: 12px; display: flex; flex-direction: column; flex: 1; justify-content: space-between; gap: 10px; pointer-events: none; }
+    .card-title { font-size: 14px; font-weight: 700; color: #fff; text-align: right;}
+    .card-price { font-size: 18px; font-weight: 900; color: var(--brand-green); text-align: right;}
+    
+    .d-badges { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+    .d-badge { font-size: 10px; padding: 3px 8px; border-radius: 20px; background: #32323a; color: #cbd5e1; }
     .d-badge.green { background: rgba(164,198,57,0.15); color: var(--brand-green); }
-    .device-card .d-actions { display: flex; align-items: center; }
-    .btn-reserve {
-      background: var(--brand-red); color: #fff; border: none; border-radius: 10px;
-      padding: 8px 10px; font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap;
+
+    .btn-add {
+      background: var(--brand-red); color: #fff; border: none; padding: 10px;
+      border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px; pointer-events: auto;
     }
+
+    /* الشبكات الاجتماعية ونماذج الإدخال */
+    .social-numpad { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
+    .key-social { padding: 12px; flex-direction: column; gap: 8px; font-size: 13px; height: 80px; }
+    .key-social i { font-size: 22px; }
 
     .form-field { margin-bottom: 12px; text-align: right; }
     .form-field label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
@@ -273,10 +250,21 @@
       background: #16161a; color: #fff; font-size: 13px; font-family: inherit;
     }
     .form-field textarea { resize: vertical; min-height: 60px; }
+
+    footer { text-align: center; margin-top: 25px; padding-top: 15px; width: 100%; font-size: 11px; color: var(--text-muted); padding-bottom: 20px;}
+    
+    .toast {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      background: #1e1e24; border: 1px solid var(--key-border); padding: 10px 18px;
+      border-radius: 12px; font-size: 13px; color: #fff; opacity: 0; transition: 0.3s;
+      pointer-events: none; z-index: 3000;
+    }
+    .toast.show { opacity: 1; }
   </style>
 </head>
 <body>
 
+  <!-- الواجهة الرئيسية -->
   <main class="card-container">
     <header class="hero">
       <img src="https://res.cloudinary.com/dvzg70krq/image/upload/v1789378694/1789377856259_yfdkgq.jpg" alt="اندرويد 2">
@@ -295,9 +283,9 @@
         جوالات أصلية ومضمونة بأفضل الأسعار، صيانة احترافية وفورية لجميع أنواع الشاشات والبطاريات مع كفالة وجودة عالية.
       </div>
 
-      <div style="width: 100%; margin-top: 25px;">
+      <div style="width: 100%; margin-top: 20px;">
         <button class="mobile-key key-green btn-wide" onclick="toggleModal('catalogModal', true)">
-          <i class="fa-solid fa-book-open"></i> استعراض الكتالوج والعروض
+          <i class="fa-solid fa-book-open"></i> تصفح الكتالوج والعروض
         </button>
         <button class="mobile-key key-red btn-wide" onclick="downloadVCard()">
           <i class="fa-solid fa-address-card"></i> حفظ جهة الاتصال (Save)
@@ -308,44 +296,34 @@
       </div>
 
       <div class="section-title">أرقام الاتصال المباشر (Dialer)</div>
-      
       <div class="social-numpad">
         <a href="tel:00963944712490" class="mobile-key key-social">
-          <i class="fa-solid fa-phone" style="color: #e11d48;"></i>
-          <span>اتصال بسام</span>
+          <i class="fa-solid fa-phone" style="color: #e11d48;"></i><span>اتصال بسام</span>
         </a>
         <a href="https://wa.me/963944712490" target="_blank" rel="noopener noreferrer" class="mobile-key key-social">
-          <i class="fa-brands fa-whatsapp" style="color: #22c55e;"></i>
-          <span>واتساب بسام</span>
+          <i class="fa-brands fa-whatsapp" style="color: #22c55e;"></i><span>واتساب بسام</span>
         </a>
         <a href="tel:00963962328668" class="mobile-key key-social">
-          <i class="fa-solid fa-phone" style="color: #e11d48;"></i>
-          <span>اتصال أحمد</span>
+          <i class="fa-solid fa-phone" style="color: #e11d48;"></i><span>اتصال أحمد</span>
         </a>
         <a href="https://wa.me/963962328668" target="_blank" rel="noopener noreferrer" class="mobile-key key-social">
-          <i class="fa-brands fa-whatsapp" style="color: #22c55e;"></i>
-          <span>واتساب أحمد</span>
+          <i class="fa-brands fa-whatsapp" style="color: #22c55e;"></i><span>واتساب أحمد</span>
         </a>
       </div>
 
       <div class="section-title">التطبيقات والموقع (Apps)</div>
-      
       <div class="social-numpad">
         <a href="https://wa.me/963944712490" target="_blank" rel="noopener noreferrer" class="mobile-key key-social">
-          <i class="fa-brands fa-whatsapp" style="color: #22c55e;"></i>
-          <span>خدمة العملاء</span>
+          <i class="fa-brands fa-whatsapp" style="color: #22c55e;"></i><span>خدمة العملاء</span>
         </a>
         <a href="https://maps.app.goo.gl/6HUKpBCcruHFdW257" target="_blank" rel="noopener noreferrer" class="mobile-key key-social">
-          <i class="fa-solid fa-location-dot" style="color: #e11d48;"></i>
-          <span>الموقع الجغرافي</span>
+          <i class="fa-solid fa-location-dot" style="color: #e11d48;"></i><span>الموقع الجغرافي</span>
         </a>
         <a href="https://www.facebook.com/share/19ttoksNWz/" target="_blank" rel="noopener noreferrer" class="mobile-key key-social">
-          <i class="fa-brands fa-facebook-f" style="color: #3b82f6;"></i>
-          <span>فيسبوك</span>
+          <i class="fa-brands fa-facebook-f" style="color: #3b82f6;"></i><span>فيسبوك</span>
         </a>
         <a href="https://www.instagram.com/bsam.alhmade?stkn=MXhqNzE0c2sxNjdxcA==" target="_blank" rel="noopener noreferrer" class="mobile-key key-social">
-          <i class="fa-brands fa-instagram" style="color: #f43f5e;"></i>
-          <span>إنستغرام</span>
+          <i class="fa-brands fa-instagram" style="color: #f43f5e;"></i><span>إنستغرام</span>
         </a>
       </div>
 
@@ -356,86 +334,127 @@
     </section>
   </main>
 
+  <!-- الكتالوج (شاشة كاملة) -->
   <div class="modal-overlay" id="catalogModal">
     <div class="modal-card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; border-bottom: 1px dashed #4b4b56; padding-bottom: 10px;">
-        <h3 style="color: #fff;"><i class="fa-solid fa-list"></i> الكتالوج الرقمي</h3>
-        <button onclick="toggleModal('catalogModal', false)" class="mobile-key" style="width: 30px; height: 30px; border-radius: 50%;" aria-label="إغلاق">
+      <div class="catalog-header">
+        <h3 style="color: #fff; font-size: 18px;"><i class="fa-solid fa-store"></i> المعرض الرقمي</h3>
+        <button onclick="toggleModal('catalogModal', false)" class="mobile-key" style="width: 35px; height: 35px; border-radius: 50%;" aria-label="إغلاق">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
 
-      <div class="catalog-filters" id="catalogFilters">
-        <button class="filter-chip active" data-filter="all" onclick="setFilter('all')">الكل</button>
-        <button class="filter-chip" data-filter="featured" onclick="setFilter('featured')">موصى به</button>
+      <!-- سلايدر العروض الاحترافي (داخل الكتالوج) -->
+      <div class="slider-section" id="offersCarouselWrap" style="display:none;">
+        <div class="slider-hint"><i class="fa-solid fa-fire"></i> أحدث العروض والخصومات</div>
+        <div class="slider-wrapper">
+          <div class="carousel-3d" id="offersStage"></div>
+        </div>
       </div>
 
-      <div id="devicesContainer">
-        <p style="text-align:center; color:var(--text-muted); font-size:13px; padding: 20px 0;">جارٍ تحميل الأجهزة...</p>
+      <div class="filter-section">
+        <!-- خانة البحث المتقدمة -->
+        <input type="text" id="searchInput" class="search-box" placeholder="ابحث عن جهاز (مثال: ايفون 13)..." oninput="renderDevices()">
+        
+        <!-- الفلترة المتقدمة (الحالة) -->
+        <div class="advanced-filters">
+          <select id="conditionFilter" onchange="renderDevices()">
+            <option value="all">حالة الجهاز: الكل</option>
+            <option value="جديد">جديد فقط</option>
+            <option value="مستعمل">مستعمل فقط</option>
+          </select>
+        </div>
+
+        <!-- تبويبات الماركات -->
+        <div class="tabs-bar" id="catalogFilters">
+          <button class="tab-btn active" data-filter="all" onclick="setFilter('all')">الكل</button>
+          <!-- Brands will be injected here dynamically -->
+        </div>
       </div>
 
-      <a href="https://wa.me/963944712490?text=مرحباً، أرغب بالاستفسار عن السعر والمواصفات" target="_blank" rel="noopener noreferrer" class="mobile-key key-green btn-wide" style="margin-top: 15px;">
-        <i class="fa-brands fa-whatsapp"></i> طلب استفسار عبر واتساب
-      </a>
+      <!-- شبكة المنتجات -->
+      <div class="catalog-container" id="devicesContainer">
+        <p style="text-align:center; color:var(--text-muted); font-size:14px; grid-column: 1/-1;">جارٍ تحميل الأجهزة...</p>
+      </div>
     </div>
   </div>
 
-  <div class="modal-overlay" id="reserveModal">
-    <div class="modal-card">
+  <!-- نافذة تفاصيل الجهاز (تظهر عند النقر على بطاقة الجهاز) -->
+  <div class="modal-overlay" id="deviceDetailModal" style="background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);">
+    <div class="modal-card-small">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px; border-bottom: 1px dashed #4b4b56; padding-bottom: 10px;">
-        <h3 style="color: #fff;"><i class="fa-solid fa-calendar-check"></i> حجز جهاز</h3>
+        <h3 style="color: #fff;"><i class="fa-solid fa-mobile-screen"></i> نظرة سريعة</h3>
+        <button onclick="toggleModal('deviceDetailModal', false)" class="mobile-key" style="width: 30px; height: 30px; border-radius: 50%;" aria-label="إغلاق">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <img id="deviceModalImg" alt="" style="width:100%; border-radius:12px; margin-bottom:12px; max-height:250px; object-fit:cover;" />
+      <h4 id="deviceModalTitle" style="color:#fff; margin-bottom:4px; font-size:18px;"></h4>
+      <div id="deviceModalPrice" style="color:var(--brand-green); font-size:22px; font-weight:900; margin-bottom:8px; text-align:right;"></div>
+      <div id="deviceModalBadges" class="d-badges" style="margin-bottom: 12px; justify-content: flex-start;"></div>
+      <p id="deviceModalSpecs" style="font-size:14px; color:var(--text-muted); line-height:1.6; margin-bottom:20px; text-align:right;"></p>
+      
+      <button id="btnDeviceModalReserve" class="mobile-key key-green btn-wide">
+        <i class="fa-solid fa-headset"></i> للحجز والاستفسار
+      </button>
+    </div>
+  </div>
+
+  <!-- نافذة طلب أو استفسار -->
+  <div class="modal-overlay" id="reserveModal" style="background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);">
+    <div class="modal-card-small">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px; border-bottom: 1px dashed #4b4b56; padding-bottom: 10px;">
+        <h3 style="color: #fff;"><i class="fa-solid fa-headset"></i> طلب أو استفسار</h3>
         <button onclick="toggleModal('reserveModal', false)" class="mobile-key" style="width: 30px; height: 30px; border-radius: 50%;" aria-label="إغلاق">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
 
-      <p id="reserveDeviceName" style="color: var(--brand-green); font-weight: 800; margin-bottom: 12px; text-align: right;"></p>
+      <p id="reserveDeviceName" style="color: var(--brand-green); font-weight: 800; margin-bottom: 12px; text-align: right; font-size:16px;"></p>
 
       <div class="form-field">
-        <label>الاسم الكامل</label>
-        <input type="text" id="resName" placeholder="اسمك" />
+        <label>الاسم الكريم</label>
+        <input type="text" id="resName" placeholder="أدخل اسمك" />
       </div>
       <div class="form-field">
-        <label>رقم الهاتف</label>
+        <label>رقم الهاتف للواتساب أو الاتصال</label>
         <input type="tel" id="resPhone" placeholder="09XXXXXXXX" />
       </div>
       <div class="form-field">
-        <label>ملاحظة (اختياري)</label>
-        <textarea id="resNote" placeholder="أي تفاصيل إضافية..."></textarea>
+        <label>تفاصيل الاستفسار (اختياري)</label>
+        <textarea id="resNote" placeholder="اكتب استفسارك أو رغبتك بالحجز..."></textarea>
       </div>
 
       <button class="mobile-key key-green btn-wide" onclick="submitReservation()">
-        <i class="fa-solid fa-check"></i> تأكيد طلب الحجز
+        <i class="fa-regular fa-paper-plane"></i> إرسال الطلب
       </button>
-      <p id="reserveMsg" style="text-align:center; font-size:12px; margin-top:8px; color: var(--brand-green);"></p>
+      <p id="reserveMsg" style="text-align:center; font-size:13px; margin-top:8px; font-weight: bold;"></p>
     </div>
   </div>
 
-  <div class="modal-overlay" id="iosInstallModal">
-    <div class="modal-card">
+  <!-- نافذة تفاصيل العرض -->
+  <div class="modal-overlay" id="offerDetailModal" style="background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);">
+    <div class="modal-card-small">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px; border-bottom: 1px dashed #4b4b56; padding-bottom: 10px;">
-        <h3 style="color: #fff;"><i class="fa-solid fa-mobile-screen"></i> تثبيت التطبيق على آيفون</h3>
-        <button onclick="toggleModal('iosInstallModal', false)" class="mobile-key" style="width: 30px; height: 30px; border-radius: 50%;" aria-label="إغلاق">
+        <h3 style="color: #fff;"><i class="fa-solid fa-tags"></i> تفاصيل العرض</h3>
+        <button onclick="toggleModal('offerDetailModal', false)" class="mobile-key" style="width: 30px; height: 30px; border-radius: 50%;" aria-label="إغلاق">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
-      <div class="modal-item">
-        <h4><i class="fa-solid fa-1" style="color:var(--brand-green);"></i> اضغط على زر المشاركة (Share)</h4>
-        <p>في شريط Safari السفلي، اضغط على أيقونة المشاركة <i class="fa-solid fa-arrow-up-from-bracket"></i></p>
-      </div>
-      <div class="modal-item">
-        <h4><i class="fa-solid fa-2" style="color:var(--brand-green);"></i> اختر "إضافة إلى الشاشة الرئيسية"</h4>
-        <p>مرّر لأسفل في قائمة الخيارات واضغط Add to Home Screen</p>
-      </div>
-      <div class="modal-item">
-        <h4><i class="fa-solid fa-3" style="color:var(--brand-green);"></i> اضغط "إضافة"</h4>
-        <p>سيظهر أيقونة التطبيق على شاشتك الرئيسية مثل أي تطبيق عادي.</p>
-      </div>
+      <img id="offerModalImg" alt="" style="width:100%; border-radius:12px; margin-bottom:12px; max-height:220px; object-fit:cover;" />
+      <h4 id="offerModalTitle" style="color:#fff; margin-bottom:8px; font-size:18px;"></h4>
+      <p id="offerModalDesc" style="font-size:14px; color:var(--text-muted); line-height:1.6; margin-bottom:20px; text-align:right;"></p>
+      
+      <button id="btnOfferModalReserve" class="mobile-key key-green btn-wide">
+        <i class="fa-solid fa-headset"></i> استفسار عن هذا العرض
+      </button>
     </div>
   </div>
 
+  <div class="toast" id="toast"></div>
+
   <script>
-    // ==== إعدادات Supabase — عدّل هذين السطرين حسب مشروعك ====
+    // ==== إعدادات Supabase ====
     const SUPABASE_URL = "https://sbtbkfarxapuxkmgwepw.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNidGJrZmFyeGFwdXhrbWd3ZXB3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0MzE1MzIsImV4cCI6MjEwNTAwNzUzMn0.p9Mz-anhx5GweB7bNtApVjDXra6OjagDC9Jh9DaUdms";
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -444,17 +463,17 @@
     let currentFilter = 'all';
     let selectedDeviceId = null;
 
+    // استدعاء الأجهزة (بدون ترتيب للموصى به)
     async function loadCatalog() {
       const container = document.getElementById('devicesContainer');
       const { data, error } = await supabaseClient
         .from('devices')
         .select('*')
         .eq('available', true)
-        .order('featured', { ascending: false })
         .order('created_at', { ascending: false });
 
       if (error) {
-        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:13px;">تعذّر تحميل الكتالوج حالياً</p>';
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:14px; grid-column: 1/-1;">تعذّر تحميل الكتالوج حالياً</p>';
         return;
       }
 
@@ -463,14 +482,17 @@
       renderDevices();
     }
 
+    // بناء تبويبات الماركات الديناميكية
     function buildBrandFilters() {
       const filtersEl = document.getElementById('catalogFilters');
       const brands = [...new Set(allDevices.map(d => d.brand))];
+      
       const existing = filtersEl.querySelectorAll('[data-brand]');
       existing.forEach(el => el.remove());
+      
       brands.forEach(brand => {
         const btn = document.createElement('button');
-        btn.className = 'filter-chip';
+        btn.className = 'tab-btn';
         btn.dataset.brand = brand;
         btn.textContent = brand;
         btn.onclick = () => setFilter(brand);
@@ -480,46 +502,92 @@
 
     function setFilter(filter) {
       currentFilter = filter;
-      document.querySelectorAll('.filter-chip').forEach(chip => {
+      document.querySelectorAll('.tab-btn').forEach(chip => {
         const chipVal = chip.dataset.filter || chip.dataset.brand;
         chip.classList.toggle('active', chipVal === filter);
       });
       renderDevices();
     }
 
+    // عرض وتطبيق الفلاتر والبحث
     function renderDevices() {
       const container = document.getElementById('devicesContainer');
+      const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+      const conditionQuery = document.getElementById('conditionFilter').value;
+
       let list = allDevices;
-      if (currentFilter === 'featured') list = list.filter(d => d.featured);
-      else if (currentFilter !== 'all') list = list.filter(d => d.brand === currentFilter);
+
+      // فلتر الماركات
+      if (currentFilter !== 'all') {
+        list = list.filter(d => d.brand === currentFilter);
+      }
+
+      // فلتر الحالة
+      if (conditionQuery !== 'all') {
+        list = list.filter(d => d.condition === conditionQuery);
+      }
+
+      // فلتر البحث النصي
+      if (searchQuery) {
+        list = list.filter(d => 
+          (d.brand + ' ' + d.model).toLowerCase().includes(searchQuery) ||
+          (d.specs && d.specs.toLowerCase().includes(searchQuery))
+        );
+      }
 
       if (!list.length) {
-        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:13px; padding: 20px 0;">لا توجد أجهزة متاحة حالياً</p>';
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:14px; grid-column: 1/-1; padding: 30px;">لم يتم العثور على أجهزة مطابقة للبحث أو الفلتر</p>';
         return;
       }
 
       container.innerHTML = list.map(d => `
-        <div class="device-card">
-          <img src="${d.image_url || 'https://via.placeholder.com/70'}" alt="${d.brand} ${d.model}" />
-          <div class="d-info">
-            <h4>${d.brand} ${d.model}</h4>
-            <div class="d-price">$${Number(d.price).toFixed(0)}</div>
-            ${d.specs ? `<p>${d.specs}</p>` : ''}
-            <div class="d-badges">
-              <span class="d-badge ${d.condition === 'جديد' ? 'green' : ''}">${d.condition}</span>
-              ${d.color ? `<span class="d-badge">${d.color}</span>` : ''}
-              ${d.trade_in ? '<span class="d-badge green">يقبل الاستبدال</span>' : ''}
+        <div class="card" onclick="openDeviceDetails('${d.id}')">
+          <img src="${d.image_url || 'https://via.placeholder.com/200'}" alt="${d.brand} ${d.model}" />
+          <div class="card-content">
+            <div>
+              <div class="card-title">${d.brand} ${d.model}</div>
+              <div class="card-price">$${Number(d.price).toFixed(0)}</div>
+              <div style="font-size:11px; color:var(--text-muted); margin:5px 0 8px;">${d.specs || ''}</div>
+              <div class="d-badges">
+                <span class="d-badge ${d.condition === 'جديد' ? 'green' : ''}">${d.condition}</span>
+                ${d.color ? `<span class="d-badge">${d.color}</span>` : ''}
+                ${d.trade_in ? '<span class="d-badge green">استبدال</span>' : ''}
+                ${d.featured ? '<span class="d-badge green">توصية فقط</span>' : ''}
+              </div>
             </div>
-          </div>
-          <div class="d-actions">
-            <button class="btn-reserve" onclick="openReserve('${d.id}', '${(d.brand + ' ' + d.model).replace(/'/g, "\\'")}')">
-              <i class="fa-solid fa-calendar-check"></i> احجز
+            <button class="btn-add" onclick="event.stopPropagation(); openReserve('${d.id}', '${(d.brand + ' ' + d.model).replace(/'/g, "\\'")}')">
+              <i class="fa-solid fa-headset"></i> للحجز والاستفسار
             </button>
           </div>
         </div>
       `).join('');
     }
 
+    // دالة عرض تفاصيل الجهاز عند النقر على البطاقة
+    function openDeviceDetails(id) {
+      const d = allDevices.find(x => x.id === id);
+      if(!d) return;
+
+      document.getElementById('deviceModalImg').src = d.image_url || 'https://via.placeholder.com/400';
+      document.getElementById('deviceModalTitle').textContent = d.brand + ' ' + d.model;
+      document.getElementById('deviceModalPrice').textContent = '$' + Number(d.price).toFixed(0);
+      document.getElementById('deviceModalSpecs').textContent = d.specs || 'لا توجد تفاصيل إضافية لهذا الجهاز.';
+      
+      let badgesHTML = `<span class="d-badge ${d.condition === 'جديد' ? 'green' : ''}">${d.condition}</span>`;
+      if (d.color) badgesHTML += `<span class="d-badge">${d.color}</span>`;
+      if (d.trade_in) badgesHTML += `<span class="d-badge green">يقبل استبدال</span>`;
+      if (d.featured) badgesHTML += `<span class="d-badge green">توصية فقط (تأمين بالطلب)</span>`;
+      document.getElementById('deviceModalBadges').innerHTML = badgesHTML;
+
+      document.getElementById('btnDeviceModalReserve').onclick = () => {
+        toggleModal('deviceDetailModal', false);
+        openReserve(d.id, d.brand + ' ' + d.model);
+      };
+
+      toggleModal('deviceDetailModal', true);
+    }
+
+    // دالة فتح نافذة الاستفسار/الحجز
     function openReserve(deviceId, deviceName) {
       selectedDeviceId = deviceId;
       document.getElementById('reserveDeviceName').textContent = deviceName;
@@ -527,10 +595,11 @@
       document.getElementById('resPhone').value = '';
       document.getElementById('resNote').value = '';
       document.getElementById('reserveMsg').textContent = '';
-      toggleModal('catalogModal', false);
+      
       toggleModal('reserveModal', true);
     }
 
+    // إرسال الطلب لقاعدة البيانات
     async function submitReservation() {
       const name = document.getElementById('resName').value.trim();
       const phone = document.getElementById('resPhone').value.trim();
@@ -539,7 +608,7 @@
 
       if (!name || !phone) {
         msgEl.style.color = '#f87171';
-        msgEl.textContent = 'الرجاء إدخال الاسم ورقم الهاتف';
+        msgEl.textContent = 'الرجاء إدخال الاسم ورقم الهاتف لنتواصل معك';
         return;
       }
 
@@ -552,25 +621,88 @@
 
       if (error) {
         msgEl.style.color = '#f87171';
-        msgEl.textContent = 'حدث خطأ، الرجاء المحاولة مجدداً';
+        msgEl.textContent = 'حدث خطأ أثناء الإرسال، الرجاء المحاولة مجدداً أو مراسلتنا واتسآب';
         return;
       }
 
       msgEl.style.color = 'var(--brand-green)';
-      msgEl.textContent = 'تم إرسال طلب الحجز بنجاح، سنتواصل معك قريباً';
-      setTimeout(() => toggleModal('reserveModal', false), 1800);
+      msgEl.textContent = 'تم إرسال استفسارك بنجاح! سنتواصل معك قريباً.';
+      setTimeout(() => toggleModal('reserveModal', false), 2200);
     }
 
-    loadCatalog();
-  </script>
+    // ---------- بناء السلايدر الاحترافي 3D ----------
+    let offersData = [];
+    async function loadOffers() {
+      const { data, error } = await supabaseClient
+        .from('offers')
+        .select('*')
+        .eq('active', true)
+        .order('sort_order', { ascending: true });
 
-  <script>
+      if (error || !data || !data.length) return;
+      offersData = data;
+      renderCarousel3D();
+    }
+
+    function renderCarousel3D() {
+      const wrap = document.getElementById('offersCarouselWrap');
+      const stage = document.getElementById('offersStage');
+      const n = offersData.length;
+      if (!n) { wrap.style.display = 'none'; return; }
+
+      wrap.style.display = 'block';
+
+      // حساب زاوية ونصف قطر الدوران بناءً على عدد العروض
+      const angleStep = 360 / n;
+      // نصف القطر الديناميكي لتجنب تداخل البطاقات (عرض البطاقة ~170)
+      const radius = Math.max(180, Math.round(95 / Math.tan(Math.PI / n)));
+
+      stage.innerHTML = offersData.map((o, i) => `
+        <div class="carousel-card" style="transform: rotateY(${i * angleStep}deg) translateZ(${radius}px);" onclick="openOfferDetails(${i})">
+          <img src="${o.image_url}" alt="${o.title || 'عرض'}">
+          ${o.title ? `<div class="label">${o.title}</div>` : ''}
+        </div>
+      `).join('');
+    }
+
+    function openOfferDetails(index) {
+      const o = offersData[index];
+      
+      document.getElementById('offerModalImg').src = o.image_url;
+      document.getElementById('offerModalTitle').textContent = o.title || 'عرض خاص';
+      document.getElementById('offerModalDesc').textContent = o.description || '';
+      
+      const reserveBtn = document.getElementById('btnOfferModalReserve');
+      
+      if (o.device_id) {
+        const device = allDevices.find(d => d.id === o.device_id);
+        if (device) {
+          reserveBtn.onclick = () => {
+            toggleModal('offerDetailModal', false);
+            openReserve(device.id, `${device.brand} ${device.model}`);
+          };
+          reserveBtn.innerHTML = '<i class="fa-solid fa-headset"></i> للحجز والاستفسار عن الجهاز';
+        }
+      } else {
+        reserveBtn.onclick = () => {
+          const msg = encodeURIComponent(`مرحباً، أرغب بالاستفسار عن العرض: ${o.title || ''}`);
+          window.open(`https://wa.me/963944712490?text=${msg}`, '_blank');
+        };
+        reserveBtn.innerHTML = '<i class="fa-brands fa-whatsapp"></i> استفسار عن طريق الواتساب';
+      }
+
+      toggleModal('offerDetailModal', true);
+    }
+
+    // دوال مساعدة والنوافذ المنبثقة
     function toggleModal(id, show) {
       const modal = document.getElementById(id);
       if(show) {
         modal.classList.add('active');
+        if (id === 'catalogModal') document.body.style.overflow = 'hidden';
       } else {
         modal.classList.remove('active');
+        if (id === 'catalogModal') document.body.style.overflow = 'auto';
       }
     }
 
@@ -599,51 +731,17 @@
       link.click();
     }
 
-    // ---------- تثبيت التطبيق (PWA) ----------
-    let deferredInstallPrompt = null;
-    const installBtn = document.getElementById('installBtn');
-
-    function isIOSDevice() {
-      return /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
-    }
-    function isStandaloneMode() {
-      return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    function showAppToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
     }
 
-    function handleInstallClick() {
-      if (isIOSDevice()) {
-        toggleModal('iosInstallModal', true);
-        return;
-      }
-      if (deferredInstallPrompt) {
-        deferredInstallPrompt.prompt();
-        deferredInstallPrompt.userChoice.finally(() => {
-          deferredInstallPrompt = null;
-          installBtn.style.display = 'none';
-        });
-      }
-    }
+    // التهيئة
+    loadCatalog();
+    loadOffers();
 
-    if (!isStandaloneMode()) {
-      if (isIOSDevice()) {
-        installBtn.style.display = 'flex';
-      } else {
-        window.addEventListener('beforeinstallprompt', (e) => {
-          e.preventDefault();
-          deferredInstallPrompt = e;
-          installBtn.style.display = 'flex';
-        });
-        window.addEventListener('appinstalled', () => {
-          installBtn.style.display = 'none';
-        });
-      }
-    }
-
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(() => {});
-      });
-    }
   </script>
 </body>
 </html>
