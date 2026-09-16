@@ -82,7 +82,7 @@
       width: 100%; 
       height: 100%; 
       object-fit: cover; 
-      object-position: top; /* التعديل هنا: تثبيت الجزء العلوي من الصورة لظهور اللوحة */
+      object-position: top;
       opacity: 0.9; 
     }
     .hero-overlay {
@@ -226,17 +226,19 @@
     .card img { width: 100%; height: 160px; object-fit: cover; background: #000; }
     .card-content { padding: 12px; display: flex; flex-direction: column; flex: 1; justify-content: space-between; gap: 10px; pointer-events: none; }
     .card-title { font-size: 14px; font-weight: 700; color: #fff; text-align: right;}
-    .card-price { font-size: 18px; font-weight: 900; color: var(--brand-green); text-align: right;}
     
     .d-badges { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
     .d-badge { font-size: 10px; padding: 3px 8px; border-radius: 20px; background: #32323a; color: #cbd5e1; }
     .d-badge.green { background: rgba(164,198,57,0.15); color: var(--brand-green); }
 
-    .btn-add {
-      background: var(--brand-red); color: #fff; border: none; padding: 10px;
-      border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: 6px; pointer-events: auto;
+    /* زر عرض التفاصيل الأنيق الجديد للبطاقات */
+    .btn-details-card {
+      background: #2a2a32; color: #fff; border: 1px solid var(--key-border); 
+      padding: 10px; border-radius: 10px; font-weight: 700; font-size: 12px; 
+      cursor: pointer; display: flex; align-items: center; justify-content: center; 
+      gap: 6px; pointer-events: auto; transition: 0.2s;
     }
+    .btn-details-card:hover { background: #32323a; border-color: var(--brand-green); color: var(--brand-green); }
 
     /* الشبكات الاجتماعية ونماذج الإدخال */
     .social-numpad { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
@@ -260,6 +262,20 @@
       pointer-events: none; z-index: 3000;
     }
     .toast.show { opacity: 1; }
+
+    /* تنسيقات أزرار النسخ المتغيرة (Variations) */
+    .variant-btn {
+      background: #16161a; border: 1px solid var(--key-border);
+      color: var(--text-muted); padding: 8px 12px;
+      border-radius: 8px; font-size: 13px; font-weight: 700;
+      cursor: pointer; transition: 0.2s; display: flex; flex-direction: column;
+      align-items: center; gap: 4px; min-width: 80px; flex: 1;
+    }
+    .variant-btn.active {
+      background: rgba(185, 21, 48, 0.1);
+      color: #fff; border-color: var(--brand-red);
+    }
+    .variant-price { font-size: 11px; color: var(--brand-green); font-weight: 900; }
   </style>
 </head>
 <body>
@@ -353,10 +369,8 @@
       </div>
 
       <div class="filter-section">
-        <!-- خانة البحث المتقدمة -->
         <input type="text" id="searchInput" class="search-box" placeholder="ابحث عن جهاز (مثال: ايفون 13)..." oninput="renderDevices()">
         
-        <!-- الفلترة المتقدمة (الحالة) -->
         <div class="advanced-filters">
           <select id="conditionFilter" onchange="renderDevices()">
             <option value="all">حالة الجهاز: الكل</option>
@@ -365,10 +379,8 @@
           </select>
         </div>
 
-        <!-- تبويبات الماركات -->
         <div class="tabs-bar" id="catalogFilters">
           <button class="tab-btn active" data-filter="all" onclick="setFilter('all')">الكل</button>
-          <!-- Brands will be injected here dynamically -->
         </div>
       </div>
 
@@ -379,18 +391,28 @@
     </div>
   </div>
 
-  <!-- نافذة تفاصيل الجهاز (تظهر عند النقر على بطاقة الجهاز) -->
+  <!-- نافذة تفاصيل الجهاز -->
   <div class="modal-overlay" id="deviceDetailModal" style="background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);">
     <div class="modal-card-small">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px; border-bottom: 1px dashed #4b4b56; padding-bottom: 10px;">
-        <h3 style="color: #fff;"><i class="fa-solid fa-mobile-screen"></i> نظرة سريعة</h3>
+        <h3 style="color: #fff;"><i class="fa-solid fa-mobile-screen"></i> تفاصيل الجهاز</h3>
         <button onclick="toggleModal('deviceDetailModal', false)" class="mobile-key" style="width: 30px; height: 30px; border-radius: 50%;" aria-label="إغلاق">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
+      
       <img id="deviceModalImg" alt="" style="width:100%; border-radius:12px; margin-bottom:12px; max-height:250px; object-fit:cover;" />
       <h4 id="deviceModalTitle" style="color:#fff; margin-bottom:4px; font-size:18px;"></h4>
-      <div id="deviceModalPrice" style="color:var(--brand-green); font-size:22px; font-weight:900; margin-bottom:8px; text-align:right;"></div>
+      
+      <!-- السعر داخل التفاصيل فقط -->
+      <div id="deviceModalPrice" style="color:var(--brand-green); font-size:24px; font-weight:900; margin-bottom:12px; text-align:right;"></div>
+      
+      <!-- الحاوية الخاصة بالنسخ المتوفرة (ألوان/سعات) -->
+      <div id="deviceModalVariants" style="margin-bottom: 15px; display: none; background: #16161a; padding: 10px; border-radius: 10px; border: 1px solid var(--key-border);">
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px; text-align: right; font-weight: bold;"><i class="fa-solid fa-layer-group"></i> اختر النسخة أو اللون:</div>
+        <div id="variantsButtons" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+      </div>
+
       <div id="deviceModalBadges" class="d-badges" style="margin-bottom: 12px; justify-content: flex-start;"></div>
       <p id="deviceModalSpecs" style="font-size:14px; color:var(--text-muted); line-height:1.6; margin-bottom:20px; text-align:right;"></p>
       
@@ -463,7 +485,6 @@
     let currentFilter = 'all';
     let selectedDeviceId = null;
 
-    // استدعاء الأجهزة (بدون ترتيب للموصى به)
     async function loadCatalog() {
       const container = document.getElementById('devicesContainer');
       const { data, error } = await supabaseClient
@@ -482,7 +503,6 @@
       renderDevices();
     }
 
-    // بناء تبويبات الماركات الديناميكية
     function buildBrandFilters() {
       const filtersEl = document.getElementById('catalogFilters');
       const brands = [...new Set(allDevices.map(d => d.brand))];
@@ -509,7 +529,7 @@
       renderDevices();
     }
 
-    // عرض وتطبيق الفلاتر والبحث
+    // عرض المنتجات (مع إخفاء السعر وتغيير الزر لـ "عرض التفاصيل")
     function renderDevices() {
       const container = document.getElementById('devicesContainer');
       const searchQuery = document.getElementById('searchInput').value.toLowerCase();
@@ -517,17 +537,14 @@
 
       let list = allDevices;
 
-      // فلتر الماركات
       if (currentFilter !== 'all') {
         list = list.filter(d => d.brand === currentFilter);
       }
 
-      // فلتر الحالة
       if (conditionQuery !== 'all') {
         list = list.filter(d => d.condition === conditionQuery);
       }
 
-      // فلتر البحث النصي
       if (searchQuery) {
         list = list.filter(d => 
           (d.brand + ' ' + d.model).toLowerCase().includes(searchQuery) ||
@@ -536,7 +553,7 @@
       }
 
       if (!list.length) {
-        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:14px; grid-column: 1/-1; padding: 30px;">لم يتم العثور على أجهزة مطابقة للبحث أو الفلتر</p>';
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:14px; grid-column: 1/-1; padding: 30px;">لم يتم العثور على أجهزة مطابقة</p>';
         return;
       }
 
@@ -546,48 +563,105 @@
           <div class="card-content">
             <div>
               <div class="card-title">${d.brand} ${d.model}</div>
-              <div class="card-price">$${Number(d.price).toFixed(0)}</div>
+              <!-- تم إزالة السعر من هنا -->
               <div style="font-size:11px; color:var(--text-muted); margin:5px 0 8px;">${d.specs || ''}</div>
               <div class="d-badges">
                 <span class="d-badge ${d.condition === 'جديد' ? 'green' : ''}">${d.condition}</span>
                 ${d.color ? `<span class="d-badge">${d.color}</span>` : ''}
                 ${d.trade_in ? '<span class="d-badge green">استبدال</span>' : ''}
-                ${d.featured ? '<span class="d-badge green">توصية فقط</span>' : ''}
+                ${d.featured ? '<span class="d-badge green">توصية</span>' : ''}
               </div>
             </div>
-            <button class="btn-add" onclick="event.stopPropagation(); openReserve('${d.id}', '${(d.brand + ' ' + d.model).replace(/'/g, "\\'")}')">
-              <i class="fa-solid fa-headset"></i> للحجز والاستفسار
+            <!-- زر عرض التفاصيل الجديد -->
+            <button class="btn-details-card" onclick="event.stopPropagation(); openDeviceDetails('${d.id}')">
+              <i class="fa-solid fa-list-ul"></i> التفاصيل والأسعار
             </button>
           </div>
         </div>
       `).join('');
     }
 
-    // دالة عرض تفاصيل الجهاز عند النقر على البطاقة
+    // دالة عرض التفاصيل مع دعم النسخ المتعددة (Variations)
     function openDeviceDetails(id) {
       const d = allDevices.find(x => x.id === id);
       if(!d) return;
 
-      document.getElementById('deviceModalImg').src = d.image_url || 'https://via.placeholder.com/400';
       document.getElementById('deviceModalTitle').textContent = d.brand + ' ' + d.model;
-      document.getElementById('deviceModalPrice').textContent = '$' + Number(d.price).toFixed(0);
       document.getElementById('deviceModalSpecs').textContent = d.specs || 'لا توجد تفاصيل إضافية لهذا الجهاز.';
       
       let badgesHTML = `<span class="d-badge ${d.condition === 'جديد' ? 'green' : ''}">${d.condition}</span>`;
       if (d.color) badgesHTML += `<span class="d-badge">${d.color}</span>`;
       if (d.trade_in) badgesHTML += `<span class="d-badge green">يقبل استبدال</span>`;
-      if (d.featured) badgesHTML += `<span class="d-badge green">توصية فقط (تأمين بالطلب)</span>`;
+      if (d.featured) badgesHTML += `<span class="d-badge green">توصية (تأمين بالطلب)</span>`;
       document.getElementById('deviceModalBadges').innerHTML = badgesHTML;
 
-      document.getElementById('btnDeviceModalReserve').onclick = () => {
-        toggleModal('deviceDetailModal', false);
-        openReserve(d.id, d.brand + ' ' + d.model);
-      };
+      const variantsContainer = document.getElementById('deviceModalVariants');
+      const variantsButtons = document.getElementById('variantsButtons');
+      
+      // إذا كان هناك نسخ متغيرة مضافة من لوحة التحكم
+      if (d.variations && Array.isArray(d.variations) && d.variations.length > 0) {
+        variantsContainer.style.display = 'block';
+        
+        let html = `<button class="variant-btn active" onclick="selectVariant('${d.id}', -1, this)">
+          <span>الأساسية</span>
+          <span class="variant-price">$${Number(d.price).toFixed(0)}</span>
+        </button>`;
+        
+        d.variations.forEach((v, index) => {
+          const label = [v.color, v.specs].filter(Boolean).join(' - ') || `نسخة ${index + 1}`;
+          html += `<button class="variant-btn" onclick="selectVariant('${d.id}', ${index}, this)">
+            <span>${label}</span>
+            <span class="variant-price">$${Number(v.price).toFixed(0)}</span>
+          </button>`;
+        });
+        
+        variantsButtons.innerHTML = html;
+        selectVariant(d.id, -1, variantsButtons.firstElementChild);
+      } else {
+        // جهاز عادي بدون نسخ متغيرة
+        variantsContainer.style.display = 'none';
+        document.getElementById('deviceModalImg').src = d.image_url || 'https://via.placeholder.com/400';
+        document.getElementById('deviceModalPrice').textContent = '$' + Number(d.price).toFixed(0);
+        
+        document.getElementById('btnDeviceModalReserve').onclick = () => {
+          toggleModal('deviceDetailModal', false);
+          openReserve(d.id, d.brand + ' ' + d.model);
+        };
+      }
 
       toggleModal('deviceDetailModal', true);
     }
 
-    // دالة فتح نافذة الاستفسار/الحجز
+    // دالة تغيير بيانات الجهاز (صورة وسعر) عند النقر على نسخة مختلفة
+    function selectVariant(deviceId, variantIndex, btnElement) {
+      const d = allDevices.find(x => x.id === deviceId);
+      if(!d) return;
+      
+      const buttons = btnElement.parentElement.querySelectorAll('.variant-btn');
+      buttons.forEach(b => b.classList.remove('active'));
+      btnElement.classList.add('active');
+      
+      let currentPrice = Number(d.price);
+      let currentImg = d.image_url || 'https://via.placeholder.com/400';
+      let variantLabel = '';
+      
+      if (variantIndex > -1) {
+        const v = d.variations[variantIndex];
+        currentPrice = Number(v.price) || currentPrice;
+        if (v.image_url) currentImg = v.image_url;
+        variantLabel = ' ( ' + [v.color, v.specs].filter(Boolean).join(' - ') + ' )';
+      }
+      
+      document.getElementById('deviceModalPrice').textContent = '$' + currentPrice.toFixed(0);
+      document.getElementById('deviceModalImg').src = currentImg;
+      
+      const fullDeviceName = d.brand + ' ' + d.model + variantLabel;
+      document.getElementById('btnDeviceModalReserve').onclick = () => {
+        toggleModal('deviceDetailModal', false);
+        openReserve(d.id, fullDeviceName);
+      };
+    }
+
     function openReserve(deviceId, deviceName) {
       selectedDeviceId = deviceId;
       document.getElementById('reserveDeviceName').textContent = deviceName;
@@ -599,7 +673,6 @@
       toggleModal('reserveModal', true);
     }
 
-    // إرسال الطلب لقاعدة البيانات
     async function submitReservation() {
       const name = document.getElementById('resName').value.trim();
       const phone = document.getElementById('resPhone').value.trim();
@@ -651,10 +724,7 @@
       if (!n) { wrap.style.display = 'none'; return; }
 
       wrap.style.display = 'block';
-
-      // حساب زاوية ونصف قطر الدوران بناءً على عدد العروض
       const angleStep = 360 / n;
-      // نصف القطر الديناميكي لتجنب تداخل البطاقات (عرض البطاقة ~170)
       const radius = Math.max(180, Math.round(95 / Math.tan(Math.PI / n)));
 
       stage.innerHTML = offersData.map((o, i) => `
@@ -694,7 +764,6 @@
       toggleModal('offerDetailModal', true);
     }
 
-    // دوال مساعدة والنوافذ المنبثقة
     function toggleModal(id, show) {
       const modal = document.getElementById(id);
       if(show) {
@@ -738,7 +807,6 @@
       setTimeout(() => t.classList.remove('show'), 2200);
     }
 
-    // التهيئة
     loadCatalog();
     loadOffers();
 
