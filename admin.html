@@ -28,7 +28,8 @@
       --text: #f8fafc;
       --muted: #94a3b8;
       --border: #32323a;
-      --danger: #f87171;
+      --danger: #ef4444; /* تم تعديل اللون ليكون أوضح في الحذف */
+      --danger-hover: #dc2626;
       --success: #4ade80;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -103,12 +104,22 @@
     }
     .img-preview { width: 100%; max-height: 150px; object-fit: contain; border-radius: 8px; margin-top: 8px; display: none; background: #000; }
 
+    /* أزرار التحكم (حفظ وحذف) */
+    .action-buttons { display: flex; gap: 10px; margin-top: 10px; }
     .submit-btn {
-      width: 100%; padding: 13px; background: var(--primary); color: #fff; border: none;
+      flex: 2; padding: 13px; background: var(--primary); color: #fff; border: none;
       border-radius: 8px; font-family: 'Cairo', sans-serif; font-weight: 800; font-size: 1rem;
-      cursor: pointer; margin-top: 10px; transition: 0.2s;
+      cursor: pointer; transition: 0.2s;
     }
-    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .delete-btn {
+      flex: 1; padding: 13px; background: var(--danger); color: #fff; border: none;
+      border-radius: 8px; font-family: 'Cairo', sans-serif; font-weight: 800; font-size: 0.9rem;
+      cursor: pointer; transition: 0.2s;
+    }
+    .submit-btn:hover { background: var(--primary-hover); }
+    .delete-btn:hover { background: var(--danger-hover); }
+    
+    .submit-btn:disabled, .delete-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .status { text-align: center; margin-top: 10px; font-size: 0.88rem; font-weight: bold; }
     .hidden { display: none !important; }
   </style>
@@ -124,7 +135,7 @@
     <form onsubmit="handleLogin(event)">
       <input type="email" id="loginEmail" class="input-box" placeholder="البريد الإلكتروني" required>
       <input type="password" id="loginPassword" class="input-box" placeholder="كلمة المرور" required>
-      <button type="submit" id="loginBtn" class="submit-btn">دخول</button>
+      <button type="submit" id="loginBtn" class="submit-btn" style="width:100%;">دخول</button>
     </form>
     <div id="loginError" style="color: var(--danger); font-size: 0.85rem; margin-top: 10px; font-weight: bold;"></div>
   </div>
@@ -149,13 +160,13 @@
   <div id="devicesSection" class="card">
     <div class="sub-mode">
       <button id="dModeAdd" class="active" onclick="setDeviceMode('add')">➕ إضافة جديد</button>
-      <button id="dModeEdit" onclick="setDeviceMode('edit')">✏️ تعديل صنف</button>
+      <button id="dModeEdit" onclick="setDeviceMode('edit')">✏️ تعديل / حذف</button>
     </div>
 
     <form id="deviceForm" onsubmit="saveDevice(event)">
       <!-- مجموعة اختيار الجهاز للتعديل مع مربع البحث -->
       <div id="selectDeviceGroup" class="form-group hidden" style="background: var(--input-bg); padding: 10px; border-radius: 8px; border: 1px solid var(--border);">
-        <label>ابحث واختر الجهاز للتعديل:</label>
+        <label>ابحث واختر الجهاز:</label>
         <input type="text" id="searchEditDevice" placeholder="🔍 اكتب للبحث السريع (مثال: iPhone)..." class="input-box" style="margin-bottom:8px;" onkeyup="filterEditDevices()">
         <select id="editDeviceSelect" onchange="loadDeviceData()">
           <option value="">-- جاري التحميل... --</option>
@@ -222,7 +233,11 @@
         <img id="fPreview" class="img-preview" alt="معاينة">
       </div>
 
-      <button type="submit" id="dSubmitBtn" class="submit-btn">حفظ الجهاز</button>
+      <div class="action-buttons">
+        <button type="submit" id="dSubmitBtn" class="submit-btn">حفظ الجهاز</button>
+        <button type="button" id="dDeleteBtn" class="delete-btn hidden" onclick="deleteDevice()">🗑️ حذف</button>
+      </div>
+      
       <div id="dStatus" class="status"></div>
     </form>
   </div>
@@ -231,13 +246,13 @@
   <div id="offersSection" class="card hidden">
     <div class="sub-mode">
       <button id="oModeAdd" class="active" onclick="setOfferMode('add')">➕ إضافة عرض جديد</button>
-      <button id="oModeEdit" onclick="setOfferMode('edit')">✏️ تعديل عرض قائم</button>
+      <button id="oModeEdit" onclick="setOfferMode('edit')">✏️ تعديل / حذف</button>
     </div>
 
     <form id="offerForm" onsubmit="saveOffer(event)">
       <!-- مجموعة اختيار العرض للتعديل -->
       <div id="selectOfferGroup" class="form-group hidden" style="background: var(--input-bg); padding: 10px; border-radius: 8px; border: 1px solid var(--border);">
-        <label>ابحث واختر العرض للتعديل:</label>
+        <label>ابحث واختر العرض:</label>
         <input type="text" id="searchEditOffer" placeholder="🔍 اكتب اسم العرض للبحث..." class="input-box" style="margin-bottom:8px;" onkeyup="filterEditOffers()">
         <select id="editOfferSelect" onchange="loadOfferData()">
           <option value="">-- جاري التحميل... --</option>
@@ -282,7 +297,11 @@
         <img id="oPreview" class="img-preview" alt="معاينة">
       </div>
 
-      <button type="submit" id="oSubmitBtn" class="submit-btn">حفظ العرض</button>
+      <div class="action-buttons">
+        <button type="submit" id="oSubmitBtn" class="submit-btn">حفظ العرض</button>
+        <button type="button" id="oDeleteBtn" class="delete-btn hidden" onclick="deleteOffer()">🗑️ حذف</button>
+      </div>
+
       <div id="oStatus" class="status"></div>
     </form>
   </div>
@@ -355,6 +374,9 @@
     document.getElementById('dModeEdit').classList.toggle('active', mode === 'edit');
     document.getElementById('selectDeviceGroup').classList.toggle('hidden', mode === 'add');
     
+    // إظهار/إخفاء زر الحذف بناءً على الوضع
+    document.getElementById('dDeleteBtn').classList.toggle('hidden', mode === 'add');
+    
     document.getElementById('deviceForm').reset();
     document.getElementById('fPreview').style.display = 'none';
     document.getElementById('dStatus').textContent = '';
@@ -371,6 +393,9 @@
     document.getElementById('oModeEdit').classList.toggle('active', mode === 'edit');
     document.getElementById('selectOfferGroup').classList.toggle('hidden', mode === 'add');
     
+    // إظهار/إخفاء زر الحذف بناءً على الوضع
+    document.getElementById('oDeleteBtn').classList.toggle('hidden', mode === 'add');
+
     document.getElementById('offerForm').reset();
     document.getElementById('oPreview').style.display = 'none';
     document.getElementById('oStatus').textContent = '';
@@ -533,6 +558,52 @@
     setTimeout(() => { status.textContent = ''; }, 3000);
   }
 
+  // ---------- دالة حذف جهاز ----------
+  async function deleteDevice() {
+    const id = document.getElementById('editDeviceSelect').value;
+    if (!id) {
+      alert('يرجى اختيار جهاز من القائمة لحذفه أولاً');
+      return;
+    }
+
+    // رسالة تأكيد قبل الحذف
+    if (!confirm('هل أنت متأكد أنك تريد حذف هذا الجهاز نهائياً؟')) {
+      return; 
+    }
+
+    const btn = document.getElementById('dDeleteBtn');
+    const submitBtn = document.getElementById('dSubmitBtn');
+    const status = document.getElementById('dStatus');
+    
+    btn.disabled = true; 
+    submitBtn.disabled = true;
+    status.style.color = '#fff'; 
+    status.textContent = 'جاري الحذف... ⏳';
+
+    const { error } = await supabaseClient.from('devices').delete().eq('id', id);
+
+    btn.disabled = false;
+    submitBtn.disabled = false;
+
+    if (error) { 
+      status.style.color = 'var(--danger)'; 
+      status.textContent = '❌ حدث خطأ أثناء الحذف'; 
+      return; 
+    }
+    
+    status.style.color = 'var(--success)'; 
+    status.textContent = '✅ تم حذف الجهاز بنجاح';
+    
+    // إعادة ضبط النموذج بعد الحذف
+    document.getElementById('deviceForm').reset();
+    document.getElementById('fPreview').style.display = 'none';
+    document.getElementById('searchEditDevice').value = '';
+    
+    // تحديث البيانات والقائمة المنسدلة
+    await loadDevices();
+    setTimeout(() => { status.textContent = ''; }, 3000);
+  }
+
   // ---------- الحفظ والإرسال (العروض) ----------
   async function saveOffer(e) {
     e.preventDefault();
@@ -557,18 +628,16 @@
       status.textContent = 'جاري رفع الصورة... ☁️';
       const file = fileInput.files[0];
       
-      // تنظيف اسم الملف من المسافات والرموز لتجنب أخطاء الروابط
       const cleanFileName = file.name.replace(/[^a-zA-Z0-9.\-]/g, '_');
       const path = `offers/${Date.now()}_${cleanFileName}`;
       
-      // توحيد الرفع ليكون على نفس الـ Bucket الخاص بالأجهزة
       const { error: upErr } = await supabaseClient.storage.from('device-images').upload(path, file);
       
       if (upErr) {
         btn.disabled = false; 
         status.style.color = 'var(--danger)'; 
         status.textContent = '❌ فشل رفع الصورة: ' + upErr.message; 
-        return; // إيقاف العملية حتى لا يتم الحفظ بدون صورة
+        return; 
       }
       
       const { data: pub } = supabaseClient.storage.from('device-images').getPublicUrl(path);
@@ -605,6 +674,49 @@
     } else {
       document.getElementById('searchEditOffer').value = '';
     }
+    
+    await loadOffers();
+    setTimeout(() => { status.textContent = ''; }, 3000);
+  }
+
+  // ---------- دالة حذف عرض ----------
+  async function deleteOffer() {
+    const id = document.getElementById('editOfferSelect').value;
+    if (!id) {
+      alert('يرجى اختيار عرض من القائمة لحذفه أولاً');
+      return;
+    }
+
+    if (!confirm('هل أنت متأكد أنك تريد حذف هذا العرض نهائياً؟')) {
+      return; 
+    }
+
+    const btn = document.getElementById('oDeleteBtn');
+    const submitBtn = document.getElementById('oSubmitBtn');
+    const status = document.getElementById('oStatus');
+    
+    btn.disabled = true; 
+    submitBtn.disabled = true;
+    status.style.color = '#fff'; 
+    status.textContent = 'جاري الحذف... ⏳';
+
+    const { error } = await supabaseClient.from('offers').delete().eq('id', id);
+
+    btn.disabled = false;
+    submitBtn.disabled = false;
+
+    if (error) { 
+      status.style.color = 'var(--danger)'; 
+      status.textContent = '❌ حدث خطأ أثناء الحذف'; 
+      return; 
+    }
+    
+    status.style.color = 'var(--success)'; 
+    status.textContent = '✅ تم حذف العرض بنجاح';
+    
+    document.getElementById('offerForm').reset();
+    document.getElementById('oPreview').style.display = 'none';
+    document.getElementById('searchEditOffer').value = '';
     
     await loadOffers();
     setTimeout(() => { status.textContent = ''; }, 3000);
