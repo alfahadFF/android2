@@ -28,7 +28,7 @@
       --text: #f8fafc;
       --muted: #94a3b8;
       --border: #32323a;
-      --danger: #ef4444; /* تم تعديل اللون ليكون أوضح في الحذف */
+      --danger: #ef4444; 
       --danger-hover: #dc2626;
       --success: #4ade80;
     }
@@ -105,7 +105,7 @@
     .img-preview { width: 100%; max-height: 150px; object-fit: contain; border-radius: 8px; margin-top: 8px; display: none; background: #000; }
 
     /* أزرار التحكم (حفظ وحذف) */
-    .action-buttons { display: flex; gap: 10px; margin-top: 10px; }
+    .action-buttons { display: flex; gap: 10px; margin-top: 20px; }
     .submit-btn {
       flex: 2; padding: 13px; background: var(--primary); color: #fff; border: none;
       border-radius: 8px; font-family: 'Cairo', sans-serif; font-weight: 800; font-size: 1rem;
@@ -122,6 +122,22 @@
     .submit-btn:disabled, .delete-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .status { text-align: center; margin-top: 10px; font-size: 0.88rem; font-weight: bold; }
     .hidden { display: none !important; }
+
+    /* تنسيقات النسخ المتغيرة */
+    .variant-block {
+      background: #1a1a20; padding: 12px; border-radius: 8px; 
+      border: 1px solid #32323a; position: relative; margin-bottom: 10px;
+    }
+    .variant-del-btn {
+      position: absolute; top: 8px; left: 8px; background: var(--danger); 
+      color: white; border: none; border-radius: 4px; padding: 4px 8px; 
+      cursor: pointer; font-size: 0.75rem;
+    }
+    .variant-add-btn {
+      margin-top: 10px; padding: 10px; background: var(--input-bg); 
+      border: 1px dashed var(--muted); color: #fff; border-radius: 8px; 
+      cursor: pointer; width: 100%; font-family: 'Cairo', sans-serif; font-weight: 700;
+    }
   </style>
 </head>
 <body>
@@ -193,18 +209,18 @@
           </select>
         </div>
         <div class="form-group">
-          <label>السعر ($) *</label>
+          <label>السعر الأساسي ($) *</label>
           <input type="number" id="fPrice" required placeholder="0">
         </div>
       </div>
 
       <div class="form-group">
-        <label>اللون (اختياري)</label>
+        <label>اللون الافتراضي (اختياري)</label>
         <input type="text" id="fColor" placeholder="أسود، أبيض...">
       </div>
 
       <div class="form-group">
-        <label>المواصفات المختصرة</label>
+        <label>المواصفات المختصرة الافتراضية</label>
         <textarea id="fSpecs" placeholder="الذاكرة، الرام، المعالج..."></textarea>
       </div>
 
@@ -227,10 +243,24 @@
       </div>
 
       <div class="form-group">
-        <label>صورة الجهاز (اختياري عند التعديل)</label>
+        <label>صورة الجهاز الأساسية (اختياري عند التعديل)</label>
         <label for="fImage" class="upload-box">📷 اختيار صورة من الجوال</label>
         <input type="file" id="fImage" accept="image/*" style="display:none;" onchange="previewImg(this, 'fPreview')">
         <img id="fPreview" class="img-preview" alt="معاينة">
+      </div>
+
+      <!-- قسم الخيارات المتغيرة (النسخ الديناميكية) -->
+      <div class="form-group" style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 15px;">
+        <label style="color: var(--primary); font-size: 1rem;">النسخ المتوفرة (ألوان، مساحات، إلخ)</label>
+        <p style="font-size: 0.75rem; color: var(--muted); margin-bottom: 10px;">
+          أضف النسخ المختلفة لهذا الجهاز. كل نسخة يمكن أن يكون لها سعر وصورة خاصة. (اختياري)
+        </p>
+        
+        <div id="variantsContainer" style="display: flex; flex-direction: column; gap: 12px;"></div>
+        
+        <button type="button" onclick="addVariantBlock()" class="variant-add-btn">
+          ➕ إضافة نسخة / خيار جديد
+        </button>
       </div>
 
       <div class="action-buttons">
@@ -327,6 +357,19 @@
     }
   }
 
+  // معاينة صورة الخيار (النسخة)
+  function previewVariantImg(input) {
+    if (input.files && input.files[0]) {
+      let img = input.parentElement.querySelector('img');
+      if (!img) {
+        img = document.createElement('img');
+        img.style = "width: 40px; height: 40px; object-fit: cover; border-radius: 4px; margin-top: 5px;";
+        input.parentElement.appendChild(img);
+      }
+      img.src = URL.createObjectURL(input.files[0]);
+    }
+  }
+
   // ---------- المصادقة ----------
   async function handleLogin(e) {
     e.preventDefault();
@@ -374,13 +417,16 @@
     document.getElementById('dModeEdit').classList.toggle('active', mode === 'edit');
     document.getElementById('selectDeviceGroup').classList.toggle('hidden', mode === 'add');
     
-    // إظهار/إخفاء زر الحذف بناءً على الوضع
+    // إظهار/إخفاء زر الحذف
     document.getElementById('dDeleteBtn').classList.toggle('hidden', mode === 'add');
     
     document.getElementById('deviceForm').reset();
     document.getElementById('fPreview').style.display = 'none';
     document.getElementById('dStatus').textContent = '';
     
+    // تفريغ حاوية النسخ
+    document.getElementById('variantsContainer').innerHTML = '';
+
     if (mode === 'edit') {
       document.getElementById('searchEditDevice').value = '';
       populateDeviceEditDropdown();
@@ -392,10 +438,7 @@
     document.getElementById('oModeAdd').classList.toggle('active', mode === 'add');
     document.getElementById('oModeEdit').classList.toggle('active', mode === 'edit');
     document.getElementById('selectOfferGroup').classList.toggle('hidden', mode === 'add');
-    
-    // إظهار/إخفاء زر الحذف بناءً على الوضع
     document.getElementById('oDeleteBtn').classList.toggle('hidden', mode === 'add');
-
     document.getElementById('offerForm').reset();
     document.getElementById('oPreview').style.display = 'none';
     document.getElementById('oStatus').textContent = '';
@@ -404,6 +447,46 @@
       document.getElementById('searchEditOffer').value = '';
       populateOfferEditDropdown();
     }
+  }
+
+  // ---------- دالة إضافة كتل النسخ (Variants) ----------
+  function addVariantBlock(variantData = null) {
+    const container = document.getElementById('variantsContainer');
+    const div = document.createElement('div');
+    div.className = 'variant-block';
+    
+    const colorVal = variantData && variantData.color ? variantData.color : '';
+    const specsVal = variantData && variantData.specs ? variantData.specs : '';
+    const priceVal = variantData && variantData.price !== undefined ? variantData.price : '';
+    const imgUrlVal = variantData && variantData.image_url ? variantData.image_url : '';
+    const imgPreview = imgUrlVal ? `<img src="${imgUrlVal}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; margin-top: 5px;">` : '';
+
+    div.innerHTML = `
+      <button type="button" onclick="this.parentElement.remove()" class="variant-del-btn">🗑️ حذف</button>
+      <div class="grid-2" style="margin-top: 15px; margin-bottom: 10px;">
+        <div>
+          <label>اللون</label>
+          <input type="text" class="v-color input-box" placeholder="أسود، أزرق..." value="${colorVal}" style="padding: 8px; margin: 0;">
+        </div>
+        <div>
+          <label>الميزة (ذاكرة / رام...)</label>
+          <input type="text" class="v-specs input-box" placeholder="256GB / 12GB RAM..." value="${specsVal}" style="padding: 8px; margin: 0;">
+        </div>
+      </div>
+      <div class="grid-2">
+        <div>
+          <label>سعر هذه النسخة ($)</label>
+          <input type="number" class="v-price input-box" placeholder="السعر" value="${priceVal}" style="padding: 8px; margin: 0;">
+        </div>
+        <div>
+          <label>صورة الخيار (اختياري)</label>
+          <input type="file" class="v-image-file" accept="image/*" style="font-size: 0.75rem; color: #fff; width: 100%;" onchange="previewVariantImg(this)">
+          <input type="hidden" class="v-image-url" value="${imgUrlVal}">
+          ${imgPreview}
+        </div>
+      </div>
+    `;
+    container.appendChild(div);
   }
 
   // ---------- جلب البيانات ----------
@@ -425,7 +508,7 @@
     if (currentOfferMode === 'edit') populateOfferEditDropdown();
   }
 
-  // ---------- تعبئة القوائم المنسدلة ووظائف البحث السريع ----------
+  // ---------- القوائم المنسدلة للبحث ----------
   function populateDeviceEditDropdown(filterText = '') {
     const select = document.getElementById('editDeviceSelect');
     const filtered = allDevices.filter(d => 
@@ -436,8 +519,7 @@
   }
 
   function filterEditDevices() {
-    const query = document.getElementById('searchEditDevice').value;
-    populateDeviceEditDropdown(query);
+    populateDeviceEditDropdown(document.getElementById('searchEditDevice').value);
   }
 
   function populateOfferEditDropdown(filterText = '') {
@@ -450,8 +532,7 @@
   }
 
   function filterEditOffers() {
-    const query = document.getElementById('searchEditOffer').value;
-    populateOfferEditDropdown(query);
+    populateOfferEditDropdown(document.getElementById('searchEditOffer').value);
   }
 
   function populateOfferDeviceLinks() {
@@ -466,7 +547,12 @@
   function loadDeviceData() {
     const id = document.getElementById('editDeviceSelect').value;
     const d = allDevices.find(x => x.id === id);
-    if (!d) { document.getElementById('deviceForm').reset(); document.getElementById('fPreview').style.display = 'none'; return; }
+    if (!d) { 
+      document.getElementById('deviceForm').reset(); 
+      document.getElementById('fPreview').style.display = 'none'; 
+      document.getElementById('variantsContainer').innerHTML = '';
+      return; 
+    }
     
     document.getElementById('fBrand').value = d.brand || '';
     document.getElementById('fModel').value = d.model || '';
@@ -481,6 +567,12 @@
     const preview = document.getElementById('fPreview');
     if (d.image_url) { preview.src = d.image_url; preview.style.display = 'block'; }
     else { preview.style.display = 'none'; }
+
+    // رسم الخيارات (Variants)
+    document.getElementById('variantsContainer').innerHTML = '';
+    if (d.variations && Array.isArray(d.variations)) {
+      d.variations.forEach(v => addVariantBlock(v));
+    }
   }
 
   function loadOfferData() {
@@ -522,11 +614,41 @@
       featured: document.getElementById('fFeatured').checked
     };
 
-    const fileInput = document.getElementById('fImage');
-    if (fileInput.files && fileInput.files[0]) {
-      status.textContent = 'جاري رفع الصورة... ☁️';
-      const file = fileInput.files[0];
-      const path = `devices/${Date.now()}_${file.name}`;
+    // معالجة الخيارات المتغيرة (النسخ)
+    status.textContent = 'جاري معالجة الخيارات والصور الإضافية... ⏳';
+    let variationsArray = [];
+    const variantBlocks = document.querySelectorAll('.variant-block');
+    
+    for (let block of variantBlocks) {
+      const color = block.querySelector('.v-color').value.trim();
+      const specs = block.querySelector('.v-specs').value.trim();
+      const price = parseFloat(block.querySelector('.v-price').value) || 0;
+      let imageUrl = block.querySelector('.v-image-url').value;
+      
+      const fileInput = block.querySelector('.v-image-file');
+      
+      if (fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+        const path = `variants/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.\-]/g, '_')}`;
+        const { error: upErr } = await supabaseClient.storage.from('device-images').upload(path, file);
+        if (!upErr) {
+          const { data: pub } = supabaseClient.storage.from('device-images').getPublicUrl(path);
+          imageUrl = pub.publicUrl;
+        }
+      }
+      
+      if (color || specs || price > 0) {
+        variationsArray.push({ color: color, specs: specs, price: price, image_url: imageUrl });
+      }
+    }
+    payload.variations = variationsArray;
+
+    // رفع صورة الجهاز الأساسية
+    const fileInputMain = document.getElementById('fImage');
+    if (fileInputMain.files && fileInputMain.files[0]) {
+      status.textContent = 'جاري رفع الصورة الأساسية... ☁️';
+      const file = fileInputMain.files[0];
+      const path = `devices/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.\-]/g, '_')}`;
       const { error: upErr } = await supabaseClient.storage.from('device-images').upload(path, file);
       if (!upErr) {
         const { data: pub } = supabaseClient.storage.from('device-images').getPublicUrl(path);
@@ -550,6 +672,7 @@
     if (currentDeviceMode === 'add') {
       document.getElementById('deviceForm').reset();
       document.getElementById('fPreview').style.display = 'none';
+      document.getElementById('variantsContainer').innerHTML = '';
     } else {
       document.getElementById('searchEditDevice').value = '';
     }
@@ -561,45 +684,29 @@
   // ---------- دالة حذف جهاز ----------
   async function deleteDevice() {
     const id = document.getElementById('editDeviceSelect').value;
-    if (!id) {
-      alert('يرجى اختيار جهاز من القائمة لحذفه أولاً');
-      return;
-    }
-
-    // رسالة تأكيد قبل الحذف
-    if (!confirm('هل أنت متأكد أنك تريد حذف هذا الجهاز نهائياً؟')) {
-      return; 
-    }
+    if (!id) { alert('يرجى اختيار جهاز لحذفه'); return; }
+    if (!confirm('هل أنت متأكد أنك تريد حذف هذا الجهاز نهائياً؟')) return; 
 
     const btn = document.getElementById('dDeleteBtn');
     const submitBtn = document.getElementById('dSubmitBtn');
     const status = document.getElementById('dStatus');
     
-    btn.disabled = true; 
-    submitBtn.disabled = true;
-    status.style.color = '#fff'; 
-    status.textContent = 'جاري الحذف... ⏳';
+    btn.disabled = true; submitBtn.disabled = true;
+    status.style.color = '#fff'; status.textContent = 'جاري الحذف... ⏳';
 
     const { error } = await supabaseClient.from('devices').delete().eq('id', id);
 
-    btn.disabled = false;
-    submitBtn.disabled = false;
+    btn.disabled = false; submitBtn.disabled = false;
 
-    if (error) { 
-      status.style.color = 'var(--danger)'; 
-      status.textContent = '❌ حدث خطأ أثناء الحذف'; 
-      return; 
-    }
+    if (error) { status.style.color = 'var(--danger)'; status.textContent = '❌ حدث خطأ أثناء الحذف'; return; }
     
-    status.style.color = 'var(--success)'; 
-    status.textContent = '✅ تم حذف الجهاز بنجاح';
+    status.style.color = 'var(--success)'; status.textContent = '✅ تم الحذف بنجاح';
     
-    // إعادة ضبط النموذج بعد الحذف
     document.getElementById('deviceForm').reset();
     document.getElementById('fPreview').style.display = 'none';
+    document.getElementById('variantsContainer').innerHTML = '';
     document.getElementById('searchEditDevice').value = '';
     
-    // تحديث البيانات والقائمة المنسدلة
     await loadDevices();
     setTimeout(() => { status.textContent = ''; }, 3000);
   }
@@ -627,27 +734,17 @@
     if (fileInput.files && fileInput.files[0]) {
       status.textContent = 'جاري رفع الصورة... ☁️';
       const file = fileInput.files[0];
-      
-      const cleanFileName = file.name.replace(/[^a-zA-Z0-9.\-]/g, '_');
-      const path = `offers/${Date.now()}_${cleanFileName}`;
+      const path = `offers/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.\-]/g, '_')}`;
       
       const { error: upErr } = await supabaseClient.storage.from('device-images').upload(path, file);
-      
       if (upErr) {
-        btn.disabled = false; 
-        status.style.color = 'var(--danger)'; 
-        status.textContent = '❌ فشل رفع الصورة: ' + upErr.message; 
-        return; 
+        btn.disabled = false; status.style.color = 'var(--danger)'; status.textContent = '❌ فشل رفع الصورة'; return; 
       }
-      
       const { data: pub } = supabaseClient.storage.from('device-images').getPublicUrl(path);
       payload.image_url = pub.publicUrl;
       
     } else if (currentOfferMode === 'add') {
-      btn.disabled = false; 
-      status.style.color = 'var(--danger)'; 
-      status.textContent = '❌ صورة العرض مطلوبة'; 
-      return;
+      btn.disabled = false; status.style.color = 'var(--danger)'; status.textContent = '❌ صورة العرض مطلوبة'; return;
     }
 
     let error;
@@ -659,12 +756,7 @@
     }
 
     btn.disabled = false;
-    if (error) { 
-        status.style.color = 'var(--danger)'; 
-        status.textContent = '❌ حدث خطأ أثناء الحفظ'; 
-        console.error(error);
-        return; 
-    }
+    if (error) { status.style.color = 'var(--danger)'; status.textContent = '❌ حدث خطأ أثناء الحفظ'; return; }
     
     status.style.color = 'var(--success)'; status.textContent = '✅ تم الحفظ بنجاح';
     
@@ -679,40 +771,24 @@
     setTimeout(() => { status.textContent = ''; }, 3000);
   }
 
-  // ---------- دالة حذف عرض ----------
   async function deleteOffer() {
     const id = document.getElementById('editOfferSelect').value;
-    if (!id) {
-      alert('يرجى اختيار عرض من القائمة لحذفه أولاً');
-      return;
-    }
-
-    if (!confirm('هل أنت متأكد أنك تريد حذف هذا العرض نهائياً؟')) {
-      return; 
-    }
+    if (!id) { alert('يرجى اختيار عرض لحذفه'); return; }
+    if (!confirm('هل أنت متأكد أنك تريد حذف هذا العرض نهائياً؟')) return; 
 
     const btn = document.getElementById('oDeleteBtn');
     const submitBtn = document.getElementById('oSubmitBtn');
     const status = document.getElementById('oStatus');
     
-    btn.disabled = true; 
-    submitBtn.disabled = true;
-    status.style.color = '#fff'; 
-    status.textContent = 'جاري الحذف... ⏳';
+    btn.disabled = true; submitBtn.disabled = true;
+    status.style.color = '#fff'; status.textContent = 'جاري الحذف... ⏳';
 
     const { error } = await supabaseClient.from('offers').delete().eq('id', id);
+    btn.disabled = false; submitBtn.disabled = false;
 
-    btn.disabled = false;
-    submitBtn.disabled = false;
-
-    if (error) { 
-      status.style.color = 'var(--danger)'; 
-      status.textContent = '❌ حدث خطأ أثناء الحذف'; 
-      return; 
-    }
+    if (error) { status.style.color = 'var(--danger)'; status.textContent = '❌ حدث خطأ أثناء الحذف'; return; }
     
-    status.style.color = 'var(--success)'; 
-    status.textContent = '✅ تم حذف العرض بنجاح';
+    status.style.color = 'var(--success)'; status.textContent = '✅ تم الحذف بنجاح';
     
     document.getElementById('offerForm').reset();
     document.getElementById('oPreview').style.display = 'none';
