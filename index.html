@@ -448,7 +448,7 @@
       </div>
 
       <button class="mobile-key key-green btn-wide" onclick="submitReservation()">
-        <i class="fa-regular fa-paper-plane"></i> إرسال الطلب
+        <i class="fa-regular fa-paper-plane"></i> إرسال الطلب واتساب
       </button>
       <p id="reserveMsg" style="text-align:center; font-size:13px; margin-top:8px; font-weight: bold;"></p>
     </div>
@@ -706,6 +706,7 @@
       const phone = document.getElementById('resPhone').value.trim();
       const note = document.getElementById('resNote').value.trim();
       const msgEl = document.getElementById('reserveMsg');
+      const deviceName = document.getElementById('reserveDeviceName').textContent;
 
       if (!name || !phone) {
         msgEl.style.color = '#f87171';
@@ -713,22 +714,31 @@
         return;
       }
 
-      const { error } = await supabaseClient.from('reservations').insert({
+      // حفظ الطلب في قاعدة البيانات (اختياري / كنسخة احتياطية)
+      await supabaseClient.from('reservations').insert({
         device_id: selectedDeviceId,
         customer_name: name,
         customer_phone: phone,
         note: note || null
       });
 
-      if (error) {
-        msgEl.style.color = '#f87171';
-        msgEl.textContent = 'حدث خطأ أثناء الإرسال، الرجاء المحاولة مجدداً أو مراسلتنا واتسآب';
-        return;
-      }
+      // تجهيز رسالة الواتساب الموجهة إلى رقم بسام (963944712490)
+      const whatsappMsg = encodeURIComponent(
+        `مرحباً بسام، أرغب بحجز/الاستفسار عن الجهاز التالي:\n\n` +
+        `📱 الجهاز: ${deviceName}\n` +
+        `👤 الاسم: ${name}\n` +
+        `📞 الهاتف: ${phone}` +
+        (note ? `\n💬 ملاحظات: ${note}` : '')
+      );
 
       msgEl.style.color = 'var(--brand-green)';
-      msgEl.textContent = 'تم إرسال استفسارك بنجاح! سنتواصل معك قريباً.';
-      setTimeout(() => toggleModal('reserveModal', false), 2200);
+      msgEl.textContent = 'جاري توجيهك إلى واتساب بسام...';
+
+      // فتح محادثة واتساب بسام بالرسالة الجاهزة
+      setTimeout(() => {
+        window.open(`https://wa.me/963944712490?text=${whatsappMsg}`, '_blank');
+        toggleModal('reserveModal', false);
+      }, 1000);
     }
 
     // ---------- بناء السلايدر الاحترافي 3D ----------
@@ -783,7 +793,7 @@
         }
       } else {
         reserveBtn.onclick = () => {
-          const msg = encodeURIComponent(`مرحباً، أرغب بالاستفسار عن العرض: ${o.title || ''}`);
+          const msg = encodeURIComponent(`مرحباً بسام، أرغب بالاستفسار عن العرض: ${o.title || ''}`);
           window.open(`https://wa.me/963944712490?text=${msg}`, '_blank');
         };
         reserveBtn.innerHTML = '<i class="fa-brands fa-whatsapp"></i> استفسار عن طريق الواتساب';
